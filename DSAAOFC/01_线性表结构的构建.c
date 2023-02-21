@@ -37,17 +37,30 @@ int start_linear_table()
 {
 	printf("******************< SeqListInit\t>***************\n");
 	size_t initCount = 10;
-	int initArray[] = { 0,1,2,3,4,5,6,7,8,9 };
-	size_t ArrMemory = MEMMAX * sizeof(ElemType);
-	size_t LenMemory = sizeof(size_t);
+	int initArray1[] = { 0,1,2,3,4,5,6,7,8,9 };
+	int initArray2[] = { 0,1,4,3,4,5,6,7,7,9 };
 
 	SSQL* SL = (SSQL*)malloc(ArrMemory + LenMemory);
-	Rstatus initCode = SeqListInit(SL, initArray, initCount); 
+	SSQL* SL2 = (SSQL*)malloc(ArrMemory + LenMemory);
+	Rstatus initCode1 = SeqListInit(SL, initArray1, initCount);
+	Rstatus initCode2 = SeqListInit(SL2, initArray2, initCount);
 
 	SeqListPrint(SL);
+	printf("******************< SeqListMixedSet\t>***************\n");
+	ElemTypeArray Rmixed = SeqListMixedSet(2, SL, SL2);
+	SeqListPrint(SL);
+	SeqListPrint(SL2);
+	for (size_t i = 0; i < SeqListGetLength(SL); i++)
+	{
+		printf("%d ", Rmixed[i]);
+	}
+	printf("\n");
+
+	free(Rmixed);
+	Rmixed = NULL;
 
 	printf("******************< SeqListPushBalk\t>***************\n");
-	if (initCode == status.OK) SeqListPushBalk(SL, 10);	
+	if (initCode1 == status.OK) SeqListPushBalk(SL, 10);	
 	SeqListPrint(SL);
 
 	printf("******************< SeqListPushFront\t>***************\n");
@@ -95,6 +108,20 @@ int start_linear_table()
 
 	printf("******************< SeqListGetLength\t>***************\n");
 	printf("MemCount:%d\n",SeqListGetLength(SL));
+
+	printf("******************< SeqListMixedSet\t>***************\n");
+	set.SETMARK = -1;
+	Rmixed =  SeqListMixedSet(2,SL,SL2);
+	SeqListPrint(SL);
+	SeqListPrint(SL2);
+	for (size_t i = 0; i < SeqListGetLength(SL); i++)
+	{
+		printf("%d ", Rmixed[i]);
+	}
+	printf("\n");
+
+	free(Rmixed);
+	Rmixed = NULL;
 
 	printf("******************< SeqListIsEmrty\t>***************\n");
 	Rstatus IsEmrty;

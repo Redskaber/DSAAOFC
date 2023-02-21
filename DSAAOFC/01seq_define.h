@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
 #ifndef __SEQ_DEFINE_H__
 	#define __SEQ_DEFINE_H__
@@ -18,6 +19,7 @@
 	typedef  unsigned int MemCount;
 	
 	#define _OK 1	
+	#define _SETMARK 0
 	#define _ISEMRTY 1
 	#define _NOTEMRTY 0
 	#define _OVERFLOW 0
@@ -26,6 +28,8 @@
 	#define _INDEXOVERFLOW 0
 	#define _INDEXNOTEXIST -1
 	#define _ELEMNOTEXIST 0
+	#define _MALLOCERROR 0
+	#define _MEMBERS 1
 
 	typedef struct _STATUS
 	{
@@ -38,6 +42,7 @@
 		int INDEXOVERFLOW;
 		int INDEXNOTEXIST;
 		int ELEMNOTEXIST;
+		int MALLOCERROR;
 	} _status;
 
 	_status status = {
@@ -49,7 +54,17 @@
 		.INITCOUNTERROR = _INITCOUNTERROR,
 		.INDEXOVERFLOW = _INDEXOVERFLOW,
 		.INDEXNOTEXIST = _INDEXNOTEXIST,
-		.ELEMNOTEXIST = _ELEMNOTEXIST
+		.ELEMNOTEXIST = _ELEMNOTEXIST,
+		.MALLOCERROR = _MALLOCERROR
+	};
+
+	typedef struct _SET 
+	{
+		int SETMARK;
+	}_set;
+
+	_set set = {
+		.SETMARK = _SETMARK
 	};
 
 	typedef struct StaticSQList
@@ -58,7 +73,9 @@
 		size_t length;
 			
 	} SSQL;
-
+	
+	size_t ArrMemory = MEMMAX * sizeof(ElemType);
+	size_t LenMemory = sizeof(size_t);
 
 
 	/*
@@ -83,7 +100,7 @@
 			Rstatus SeqListIsEmrty(SSQL* Pssl)：判断空表操作，判断顺序表是否是空表。返回状态。
 			MemCount SeqListPrint(SSQL* Pssl)：遍历顺序表操作，将顺序表中的元素输出到控制台。返回成员个数。
 
-			集合操作，（多表交集，多表并集，多表差集，多表补集）
+			集合操作，（多表交集mixed，多表并集union，多表差集diff，多表补集comple）
 	*/
 
 	Rstatus SeqListInit(SSQL* Pssl, ElemType* InitArray, size_t InitCount)
@@ -113,6 +130,55 @@
 		free(Pssl);
 		Pssl = NULL;
 		return status.ISDESTROY;
+	}
+
+	Index ElemInSeqList(SSQL* Pssl, ElemType Elem)
+	{
+		/*
+			user 判断元素Elem是否在线性表Pssl中，
+				- 不在：-1
+				- 在：index
+		*/
+		Index _ind = -1;
+		for (Index i = 0; i < Pssl->length; i++)
+		{
+			if (Pssl->array[i] == Elem) {
+				_ind = i; break;
+			}
+		}
+		return _ind;
+	}
+
+	ElemType SeqListGetElem(SSQL* Pssl, Index index)
+	{
+		return Pssl->array[index];
+	}
+
+	MemCount SeqListGetLength(SSQL* Pssl)
+	{
+		/*
+			user 通过读取 SSQL 中的length属性 get。
+		*/
+		return Pssl->length;
+	}
+
+	Rstatus SeqListIsEmrty(SSQL* Pssl)
+	{
+		/*
+			user 通过判断线性表中的 元素个数是否等于0.
+		*/
+		if (!Pssl->length) return status.ISEMRTY;
+		return status.NOTEMRTY;
+	}
+
+	MemCount SeqListPrint(SSQL* Pssl)
+	{
+		for (size_t i = 0; i < Pssl->length; i++)
+		{
+			printf("%d ", Pssl->array[i]);
+		}
+		printf("\n");
+		return Pssl->length;
 	}
 
 	Rstatus SeqListPushBalk(SSQL* Pssl, ElemType Elem)
@@ -251,58 +317,76 @@
 		{
 			Pssl->array[i] = Pssl->array[i + 1];
 		}
+
+		Pssl->array[Pssl->length - 1] = SEQDEFAULTVAL;
 		Pssl->length--;
 
 		return status.OK;
 	}
 
-	Index ElemInSeqList(SSQL* Pssl, ElemType Elem)
+	ElemTypeArray SeqListMixedSet(MemCount members, SSQL *Pssl,...) 
 	{
 		/*
-			user 判断元素Elem是否在线性表Pssl中，
-				- 不在：-1
-				- 在：index
+			user 通过传入 多个顺序表，实现对其获取交集（mixed set）。
+			-set.SETMARK == 0
 		*/
-		Index _ind = -1;
-		for (size_t i = 0; i < Pssl->length; i++)
+		va_list Pssls;
+		va_start(Pssls, members);
+
+		size_t MinMem;
+		MinMem = SEQDEFAULTVAL;
+		
+		SSQL** TempPssls = InitTempArray;
+		TempPssls = (SSQL**)malloc(members * (ArrMemory + LenMemory));
+		if (TempPssls == NULL) return status.MALLOCERROR;
+
+		for (size_t pm = 0; pm < members; pm++)
 		{
-			if (Pssl->array[i] == Elem) {
-				_ind = i; break;
+			TempPssls[pm] = va_arg(Pssls, SSQL*);
+			if (pm == 0) { MinMem = TempPssls[pm]->length; continue; }
+			if (TempPssls[pm]->length < MinMem) MinMem = TempPssls[pm]->length;
+		}
+
+		ElemType TempElem;
+		ElemTypeArray MixedSet=InitTempArray;
+		MixedSet = (ElemTypeArray)malloc(MinMem * sizeof(ElemType));
+		if (MixedSet == NULL) return status.MALLOCERROR;
+
+		for (size_t plen = 0; plen < MinMem; plen++)
+		{	
+			for (size_t pm = 0; pm < members; pm++)
+			{	
+				if (pm == 0) { TempElem = TempPssls[pm]->array[plen]; continue; }
+				if (TempPssls[pm]->array[plen] != TempElem) { MixedSet[plen] = set.SETMARK; break; }
+				if (pm + 1 == members) MixedSet[plen] = TempElem;
 			}
 		}
-		return _ind;
+
+		free(TempPssls);
+		va_end(Pssls);
+
+		return MixedSet;
 	}
 
-	ElemType SeqListGetElem(SSQL* Pssl, Index index)
-	{
-		return Pssl->array[index];
-	}
-
-	MemCount SeqListGetLength(SSQL* Pssl)
-	{
-		/*
-			user 通过读取 SSQL 中的length属性 get。
-		*/
-		return Pssl->length;
-	}
-
-	Rstatus SeqListIsEmrty(SSQL* Pssl)
+	ElemTypeArray SeqListUnionSet(MemCount members, SSQL* Pssl, ...)
 	{
 		/*
-			user 通过判断线性表中的 元素个数是否等于0.
+			user 通过传入 多个顺序表，实现对其获取并集（union set）。
 		*/
-		if (!Pssl->length) return status.ISEMRTY;
-		return status.NOTEMRTY;
 	}
 
-	MemCount SeqListPrint(SSQL* Pssl)
+	ElemTypeArray SeqListDiffSet(MemCount members, SSQL* Pssl, ...)
 	{
-		for (size_t i = 0; i < Pssl->length; i++)
-		{
-			printf("%d ",Pssl->array[i]);
-		}
-		printf("\n");
-		return Pssl->length;
+		/*
+			user 通过传入 多个顺序表，实现对其获取差集（diff set）。
+		*/
+	}
+
+	ElemTypeArray SeqListCompleSet(MemCount members, SSQL* Pssl, ...)
+	{
+		/*
+			user 通过传入 多个顺序表，实现对其获取交集（comple set）。
+		*/
 	}
 
 #endif
