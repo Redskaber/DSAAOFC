@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="源文件\DataStructure">
+      <UniqueIdentifier>{834e4213-72fc-4904-9797-d50edfa3e224}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\Algorithm">
+      <UniqueIdentifier>{6e134164-63f0-485c-a981-47d7b18072fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\DataStructure\LinearTable">
+      <UniqueIdentifier>{394d4387-5d4a-4049-92b1-7f5cb3389b61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure">
+      <UniqueIdentifier>{fbdf947b-7c37-4732-bf0c-e977ac2c0462}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure\LinearTable">
+      <UniqueIdentifier>{7f8c59f6-0f5f-445d-8ef9-87a337974503}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DSAAOFC.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="01_线性表结构的构建.c">
+      <Filter>源文件\DataStructure\LinearTable</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="01seq_define.h">
+      <Filter>头文件\DataStructure\LinearTable</Filter>
+    </ClInclude>
+    <ClInclude Include="01_线性表结构的构建.h">
+      <Filter>头文件\DataStructure\LinearTable</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
