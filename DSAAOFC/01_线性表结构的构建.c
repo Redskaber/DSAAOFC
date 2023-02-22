@@ -107,7 +107,7 @@ int start_linear_table()
 	printf("getelem:%d\n", SeqListGetElem(SL, 2));
 
 	printf("******************< SeqListGetLength\t>***************\n");
-	printf("MemCount:%d\n",SeqListGetLength(SL));
+	printf("MemCount:%zd\n",SeqListGetLength(SL));
 
 	printf("******************< SeqListMixedSet\t>***************\n");
 	set.SETMARK = -1;

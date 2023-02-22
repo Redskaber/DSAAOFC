@@ -16,7 +16,7 @@
 	typedef int Index;
 	typedef int GETCODE;
 	typedef int* ElemTypeArray;
-	typedef  unsigned int MemCount;
+	typedef size_t MemCount;
 	
 	#define _OK 1	
 	#define _SETMARK 0
@@ -216,6 +216,7 @@
 		if (Pssl->length >= MEMMAX) return status.OVERFLOW;
 		if (index >= 0 && index > Pssl->length) return status.INDEXOVERFLOW;
 		if (index < 0 && -index > Pssl->length) return status.INDEXOVERFLOW;	// Pssl->length + index < 0
+		if (SeqListIsEmrty(Pssl) == status.ISEMRTY) SeqListPushBalk(Pssl, Elem);
 
 		for (size_t i = Pssl->length; i > 0; i--)
 		{
@@ -242,8 +243,11 @@
 		/*
 			user 通过 传递pssl顺序表中的替换下标位置index，替换成为新的Elem
 		*/
+		if (SeqListIsEmrty(Pssl) == status.ISEMRTY) return status.ISEMRTY;
 		if ((index >= 0 && index >= Pssl->length)||(index <0 && -index > Pssl->length)) return status.INDEXOVERFLOW;
-		Pssl->array[index] = NewElem;
+		if (index >=0) Pssl->array[index] = NewElem;
+		if (index < 0) Pssl->array[Pssl->length + index]=NewElem;
+		
 		return index;
 	}
 
@@ -263,16 +267,17 @@
 		/*
 			user 使用 index 确定弹出元素位置。
 		*/
+		if (SeqListIsEmrty(Pssl) == status.ISEMRTY) return status.ISEMRTY;
 		if (index >= 0 && index >= Pssl->length) return status.INDEXOVERFLOW;
 		if (index < 0 && -index > Pssl->length) return status.INDEXOVERFLOW;
 		
 		ElemType popElem;
 
-		popElem = (index>=0)? (Pssl->array[index]):(Pssl->array[Pssl->length+index]);
+		popElem = (index>=0)? (Pssl->array[index]):(Pssl->array[Pssl->length + index]);
 		for (size_t i = 1; i < Pssl->length; i++)
 		{
 			if (index >= 0 && i > index) Pssl->array[i - 1] = Pssl->array[i];
-			if(index <0 && i > Pssl->length+index) Pssl->array[i - 1] = Pssl->array[i];
+			if(index <0 && i > Pssl->length + index) Pssl->array[i - 1] = Pssl->array[i];
 		}
 		Pssl->array[Pssl->length - 1] = SEQDEFAULTVAL;
 		Pssl->length--;
