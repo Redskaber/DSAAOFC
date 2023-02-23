@@ -91,7 +91,7 @@
 
 	/*
 		Operation:
-			Rstatus SeqListInit(SSQL* Pssl, ElemType* InitArray, unsigned int InitCount)：初始化操作，将一个外部的InitArray赋值的前InitCount个给线性表Pssl（顺序表）。返回状态。
+			Rstatus SeqListInit(SSQL* Pssl, INITCODE InitCode,...)：初始化操作，选择性auto初始化或者将一个外部的InitArray赋值的前InitCount个给线性表Pssl（顺序表）。返回状态。
 			Rstatus SeqListDestroy(SSQL* Pssl)：销毁操作，将顺序表Pssl销毁，释放开辟的空间。返回状态。
 
 			Rstatus SeqListPushBalk(SSQL* Pssl, ElemType Elem)：尾部推入操作，将元素Elem推入顺序表Pssl的尾部。返回状态。
