@@ -22,14 +22,17 @@
     <Filter Include="头文件\DataStructure">
       <UniqueIdentifier>{fbdf947b-7c37-4732-bf0c-e977ac2c0462}</UniqueIdentifier>
     </Filter>
-    <Filter Include="源文件\DataStructure\LinkedList">
-      <UniqueIdentifier>{363e5895-7fd3-4667-96b9-b7e58d1ed2e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="源文件\DataStructure\LinearList">
       <UniqueIdentifier>{394d4387-5d4a-4049-92b1-7f5cb3389b61}</UniqueIdentifier>
     </Filter>
     <Filter Include="头文件\DataStructure\LinearList">
       <UniqueIdentifier>{7f8c59f6-0f5f-445d-8ef9-87a337974503}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\DataStructure\TestCase">
+      <UniqueIdentifier>{b33e9326-15df-41db-b977-a3989f5878f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\DataStructure\TestCase">
+      <UniqueIdentifier>{0ca21734-541b-4a67-ac59-91b39650cfa7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -39,16 +42,19 @@
     <ClCompile Include="01_线性表结构的构建.c">
       <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
+    <ClCompile Include="01_static_seqlist_case.c">
+      <Filter>源文件\DataStructure\TestCase</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="01seq_define.h">
-      <Filter>头文件\DataStructure\LinearList</Filter>
-    </ClInclude>
     <ClInclude Include="01_线性表结构的构建.h">
       <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
     <ClInclude Include="02_动态顺序表的构建.h">
       <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="01_static_seqlist_case.h">
+      <Filter>头文件\DataStructure\TestCase</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

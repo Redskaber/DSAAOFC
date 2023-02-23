@@ -7,11 +7,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "01_线性表结构的构建.h"
+#include "01_static_seqlist_case.h"
 
 int main()
 {
-	start_linear_table();
+	start_static_linker();
 
 	return 0;
 }

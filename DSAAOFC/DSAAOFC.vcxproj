@@ -127,11 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="01_static_seqlist_case.c" />
     <ClCompile Include="01_线性表结构的构建.c" />
     <ClCompile Include="DSAAOFC.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="01seq_define.h" />
+    <ClInclude Include="01_static_seqlist_case.h" />
     <ClInclude Include="01_线性表结构的构建.h" />
     <ClInclude Include="02_动态顺序表的构建.h" />
   </ItemGroup>
