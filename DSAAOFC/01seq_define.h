@@ -1,10 +1,11 @@
 #pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-
 #ifndef __SEQ_DEFINE_H__
+	#include <stdio.h>
+	#include <stdlib.h>
+	#include <stdarg.h>
+	#include <string.h>
+
 	#define __SEQ_DEFINE_H__
 	#define MEMMAX 100
 	#define SEQDEFAULTVAL NULL
@@ -15,6 +16,7 @@
 	typedef int Rstatus;
 	typedef int Index;
 	typedef int GETCODE;
+	typedef int INITCODE;
 	typedef int* ElemTypeArray;
 	typedef size_t MemCount;
 	
@@ -22,14 +24,17 @@
 	#define _SETMARK 0
 	#define _ISEMRTY 1
 	#define _NOTEMRTY 0
-	#define _OVERFLOW 0
+	#define _OVERFLOW -1
 	#define _ISDESTROY 1
-	#define _INITCOUNTERROR 0
-	#define _INDEXOVERFLOW 0
+	#define _INITCOUNTERROR -1
+	#define _INDEXOVERFLOW -1
 	#define _INDEXNOTEXIST -1
-	#define _ELEMNOTEXIST 0
-	#define _MALLOCERROR 0
+	#define _ELEMNOTEXIST NULL
+	#define _MALLOCERROR NULL
 	#define _MEMBERS 1
+	#define _AUTOINITCODE 0
+	#define _ARRAYINITCODE 2
+	#define _DEFAULTMARK 0
 
 	typedef struct _STATUS
 	{
@@ -43,6 +48,7 @@
 		int INDEXNOTEXIST;
 		int ELEMNOTEXIST;
 		int MALLOCERROR;
+		int AUTOINITCODE;
 	} _status;
 
 	_status status = {
@@ -55,16 +61,21 @@
 		.INDEXOVERFLOW = _INDEXOVERFLOW,
 		.INDEXNOTEXIST = _INDEXNOTEXIST,
 		.ELEMNOTEXIST = _ELEMNOTEXIST,
-		.MALLOCERROR = _MALLOCERROR
+		.MALLOCERROR = _MALLOCERROR,
+
 	};
 
-	typedef struct _SET 
+	typedef struct INITCODE 
 	{
-		int SETMARK;
-	}_set;
+		int AUTOINITCODE;
+		int ARRAYINITCODE;
+		int DEFAULTMARK;
+	}_initcode;
 
-	_set set = {
-		.SETMARK = _SETMARK
+	_initcode initcode = {
+		.AUTOINITCODE = _AUTOINITCODE,
+		.ARRAYINITCODE = _ARRAYINITCODE,
+		.DEFAULTMARK = _DEFAULTMARK
 	};
 
 	typedef struct StaticSQList
@@ -103,11 +114,29 @@
 			集合操作，（多表交集mixed，多表并集union，多表差集diff，多表补集comple）
 	*/
 
-	Rstatus SeqListInit(SSQL* Pssl, ElemType* InitArray, size_t InitCount)
+	Rstatus SeqListInit(SSQL* Pssl, INITCODE InitCode,...)
 	{	
 		/*
 			user 使用 initArray 数组 初始化 线性表。（O(n)）
+			INITCODE InitCode
+				- 0 AUTOINITCODE
+				- 2 ARRAYINITCODE (initArray， initCount)
 		*/
+		if (InitCode == initcode.AUTOINITCODE)
+		{
+			memset(Pssl->array, initcode.DEFAULTMARK, MEMMAX);
+			Pssl->length = 0;
+			return status.OK;
+		}
+
+		ElemTypeArray InitArray;
+		size_t InitCount;
+
+		va_list InitArgs;
+		va_start(InitArgs, InitCode);
+		InitArray = va_arg(InitArgs, ElemTypeArray);
+		InitCount = va_arg(InitArgs, size_t);
+
 		if (InitCount > MEMMAX) return status.OVERFLOW;
 		Pssl->length = 0;
 		for (size_t i = 0; i < InitCount; i++)
@@ -116,6 +145,9 @@
 			Pssl->length++;
 		}
 		if (Pssl->length != InitCount) return status.INITCOUNTERROR;
+
+		va_end(InitArgs);
+
 		return status.OK;
 	}
 
@@ -136,10 +168,10 @@
 	{
 		/*
 			user 判断元素Elem是否在线性表Pssl中，
-				- 不在：-1
-				- 在：index
+				- 不在：-1 (status.INDEXNOTEXIST)
+				- 在：index	>=0
 		*/
-		Index _ind = -1;
+		Index _ind = status.INDEXNOTEXIST;
 		for (Index i = 0; i < Pssl->length; i++)
 		{
 			if (Pssl->array[i] == Elem) {
@@ -151,7 +183,14 @@
 
 	ElemType SeqListGetElem(SSQL* Pssl, Index index)
 	{
-		return Pssl->array[index];
+		if (index >= 0 && index >= Pssl->length) return status.INDEXOVERFLOW;
+		if (index < 0 && -index > Pssl->length) return status.INDEXOVERFLOW;
+
+		ElemType GetElem;
+		if (index >= 0) GetElem = Pssl->array[index];
+		if (index < 0) GetElem = Pssl->array[Pssl->length + index];
+
+		return GetElem;
 	}
 
 	MemCount SeqListGetLength(SSQL* Pssl)
@@ -242,6 +281,7 @@
 	{
 		/*
 			user 通过 传递pssl顺序表中的替换下标位置index，替换成为新的Elem
+			return -1 error	(>=0)
 		*/
 		if (SeqListIsEmrty(Pssl) == status.ISEMRTY) return status.ISEMRTY;
 		if ((index >= 0 && index >= Pssl->length)||(index <0 && -index > Pssl->length)) return status.INDEXOVERFLOW;
@@ -255,6 +295,7 @@
 	{
 		/*
 			user 通过使用Pssl中OldElem，替换成NewElem。 
+			return index >=0
 		*/
 		Index OldIndex = ElemInSeqList(Pssl, OldElem);
 		if (OldIndex == status.INDEXNOTEXIST) return status.INDEXNOTEXIST;
