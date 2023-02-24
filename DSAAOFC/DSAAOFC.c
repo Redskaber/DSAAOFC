@@ -7,11 +7,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "01_static_seqlist_case.h"
+// #include "01_static_seqlist_case.h"
+#include "02_seq_dynamic_case.h"
 
 int main()
 {
-	start_static_linker();
-
+	//start_static_linker();
+	start_dynamic_linker();
 	return 0;
 }

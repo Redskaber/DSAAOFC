@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<stdarg.h>
 #include<string.h>
-#include "01_线性表结构的构建.h"
+#include "01_静态表结构的构建.h"
 
 
 _status status = {

@@ -39,21 +39,21 @@
     <ClCompile Include="DSAAOFC.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="01_线性表结构的构建.c">
+    <ClCompile Include="02_动态顺序表的构建.c">
       <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
-    <ClCompile Include="01_static_seqlist_case.c">
+    <ClCompile Include="02_seq_dynamic_case.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="01_线性表结构的构建.h">
-      <Filter>头文件\DataStructure\LinearList</Filter>
-    </ClInclude>
     <ClInclude Include="02_动态顺序表的构建.h">
       <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
     <ClInclude Include="01_static_seqlist_case.h">
+      <Filter>头文件\DataStructure\TestCase</Filter>
+    </ClInclude>
+    <ClInclude Include="02_seq_dynamic_case.h">
       <Filter>头文件\DataStructure\TestCase</Filter>
     </ClInclude>
   </ItemGroup>

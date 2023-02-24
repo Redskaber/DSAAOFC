@@ -1,4 +1,4 @@
-#include "01_线性表结构的构建.h"
+#include "01_静态表结构的构建.h"
 #include <stdio.h>
 #include <stdlib.h>
 
