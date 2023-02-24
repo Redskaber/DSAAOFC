@@ -56,9 +56,10 @@ _ModeHandle ModeHandle = {
 };
 
 
-Index ElemInDSeqList(DSEQL* Dslp, ElemType Elem);
+void _DSeqListInitCapacity(DSEQL* Dslp, int InitCount);
 Index _DSeqListIndexHandle(DSEQL* Dslp, Index index);
 ElemType _DSeqListRemoveHandle(DSEQL* Dslp, Index index, HandleMode getmode);
+
 
 
 Rstatus DSeqListInit(DSEQL* Dslp, InitCode initcode,...)
@@ -94,13 +95,7 @@ Rstatus DSeqListInit(DSEQL* Dslp, InitCode initcode,...)
 		int InitCount = va_arg(InitArgs, int);
 
 		if (InitCount <= 0) return error.INIT_COUNT_ERROR;
-		if (InitCount < (_initcode.DEFAULT_MAXSIZE / 2)) Dslp->capacity = _initcode.DEFAULT_MAXSIZE;
-		if (InitCount >= (_initcode.DEFAULT_MAXSIZE / 2))
-		{
-			size_t Multiple = InitCount / _initcode.DEFAULT_MAXSIZE;
-			Dslp->capacity = (Multiple + _initcode.INIT_UP_MULTIPLE) * _initcode.DEFAULT_MAXSIZE;		// 100(0-50), 150(51-100), 200(101-150),...
-
-		}
+		_DSeqListInitCapacity(Dslp, InitCount);
 		if (Dslp->capacity <= InitCount) return error.INIT_CAPACITY_ERROR;
 
 		Dslp->darray = (ElemType*)malloc(Dslp->capacity * sizeof(ElemType));
@@ -287,50 +282,6 @@ Rstatus DSeqListToIndReplace(DSEQL* Dslp, Index index, ElemType NewElem)
 	return status.OK;
 }
 
-ElemType _DSeqListRemoveHandle(DSEQL* Dslp, Index index, HandleMode getmode)
-{
-	/*
-		getmode: 
-			-ModeHandle.pop		1
-			-ModeHandle.remove	0
-	*/
-	index = _DSeqListIndexHandle(Dslp, index);
-	if (index < 0) return error.INDEX_OVERFLOW;
-
-	ElemType popElem;
-	if (getmode == ModeHandle.Pop)popElem = Dslp->darray[index];
-
-	Index UpInd = Dslp->length - 1;
-	for (int ind = index; ind < UpInd; ind++)
-	{
-		Dslp->darray[ind] = Dslp->darray[ind + 1];
-	}
-	Dslp->darray[UpInd] = MARK;
-	Dslp->length--;
-
-	if (getmode == ModeHandle.Pop) return popElem;
-	
-	return (void*)status.OK;
-}
-
-Index _DSeqListIndexHandle(DSEQL* Dslp, Index index)
-{
-	// error -1, index >= 0
-	Index lowInd = 0;
-	Index UpInd = (Index)Dslp->length - 1;
-	if (index >= lowInd) 
-	{
-		if (index > UpInd) return error.INDEX_OVERFLOW;
-		return index;
-	}
-	if (index < lowInd)
-	{ 
-		if (-index > UpInd + 1) return error.INDEX_OVERFLOW;
-		return UpInd + 1 + index;
-	}
-	return error.INDEX_OVERFLOW;
-}
-
 Index ElemInDSeqList(DSEQL* Dslp, ElemType Elem)
 {
 	/*
@@ -377,4 +328,58 @@ Rstatus DSeqListPrint(DSEQL* Dslp)
 	}
 	printf("\n");
 	return (int)Dslp->length;
+}
+
+ElemType _DSeqListRemoveHandle(DSEQL* Dslp, Index index, HandleMode getmode)
+{
+	/*
+		HandleMode: 
+			-ModeHandle.Pop		1
+			-ModeHandle.Remove	0
+	*/
+	index = _DSeqListIndexHandle(Dslp, index);
+	if (index < 0) return error.INDEX_OVERFLOW;
+
+	ElemType popElem;
+	if (getmode == ModeHandle.Pop)popElem = Dslp->darray[index];
+
+	Index UpInd = Dslp->length - 1;
+	for (int ind = index; ind < UpInd; ind++)
+	{
+		Dslp->darray[ind] = Dslp->darray[ind + 1];
+	}
+	Dslp->darray[UpInd] = MARK;
+	Dslp->length--;
+
+	if (getmode == ModeHandle.Pop) return popElem;
+	
+	return (void*)status.OK;
+}
+
+Index _DSeqListIndexHandle(DSEQL* Dslp, Index index)
+{
+	// error -1, index >= 0
+	Index lowInd = 0;
+	Index UpInd = (Index)Dslp->length - 1;
+	if (index >= lowInd) 
+	{
+		if (index > UpInd) return error.INDEX_OVERFLOW;
+		return index;
+	}
+	if (index < lowInd)
+	{ 
+		if (-index > UpInd + 1) return error.INDEX_OVERFLOW;
+		return UpInd + 1 + index;
+	}
+	return error.INDEX_OVERFLOW;
+}
+
+void _DSeqListInitCapacity(DSEQL* Dslp, int InitCount)
+{
+	if (InitCount < (_initcode.DEFAULT_MAXSIZE / 2)) Dslp->capacity = _initcode.DEFAULT_MAXSIZE;
+	if (InitCount >= (_initcode.DEFAULT_MAXSIZE / 2))
+	{
+		size_t Multiple = InitCount / _initcode.DEFAULT_MAXSIZE;
+		Dslp->capacity = (Multiple + _initcode.INIT_UP_MULTIPLE) * _initcode.DEFAULT_MAXSIZE;		// 100(0-50), 150(51-100), 200(101-150),...
+	}
 }
