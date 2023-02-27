@@ -106,6 +106,7 @@ Rstatus SingleLinkerIsEmrty(SingleLinker* slp)
 }
 
 
+
 SingleNode* createNode(ElemType data)
 {
 	/*
