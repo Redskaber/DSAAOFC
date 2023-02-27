@@ -37,6 +37,7 @@
 	extern void SingleLinkerInit(SingleLinker* slp);
 	extern NodeCount SinLinNodePrint(SingleLinker* slp);
 	extern void SingleLinkerDestroy(SingleLinker* slp);
+	extern Rstatus SingleLinkerIsEmrty(SingleLinker* slp);
 
 	extern SingleNode* _findNode(SingleLinker* slp, SingleNode* findNode);
 	extern SingleNode* _findperNode(SingleLinker* slp, SingleNode* findNode);

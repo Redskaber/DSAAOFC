@@ -103,6 +103,9 @@ int start_single_linker()
 	SinLinNodePrint(&slp);
 	printf("%d %d %zd\n", slp.headNode->data, slp.endNode->data, slp.length);
 	if (status) SinLinNodePrint(&slp);
+	printf("********************************¡¶SingleLinkerIsEmrty¡·************************************\n");
+	Rstatus r = SingleLinkerIsEmrty(&slp);
+	printf("%d\n",r);
 
 	printf("********************************¡¶SingleLinkerDestroy¡·************************************\n");
 	SingleLinkerDestroy(&slp);

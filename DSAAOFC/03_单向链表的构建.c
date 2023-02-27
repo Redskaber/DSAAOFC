@@ -89,6 +89,23 @@ void SingleLinkerDestroy(SingleLinker* slp)
 	free(slp->headNode);
 }
 
+Rstatus SingleLinkerIsEmrty(SingleLinker* slp)
+{
+	/*
+		slp -> headp[] ->first[|] -> two[|] -> ...-> end[|]
+	*/
+	if (slp->length == 0) return 1;
+	SingleNode* temp = slp->headNode->next;
+
+	while (temp->next)
+	{
+		if (temp->data != NULL) return 0;
+		temp = temp->next;
+	}
+	return 1;
+}
+
+
 SingleNode* createNode(ElemType data)
 {
 	/*
