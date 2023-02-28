@@ -97,7 +97,7 @@ BNode* appendBNode(BiDLinker* bdlp, ElemType data)
 BNode* insertBNode(BiDLinker* bdlp, ElemType afterData, ElemType data)
 {
 	BNode* temp = createBNode(afterData);
-	BNode* afternode =  _findBNode(bdlp, afterData);
+	BNode* afternode =  _findBNode(bdlp, temp);
 	assert(afternode != NULL);
 	BNode* NewNode = _insertBNode(bdlp, afternode, createBNode(data));
 	assert(NewNode != NULL);
