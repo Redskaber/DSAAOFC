@@ -45,12 +45,6 @@
     <ClCompile Include="05_queue的case.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
     </ClCompile>
-    <ClCompile Include="07_stack的链式case.c">
-      <Filter>源文件\DataStructure\TestCase</Filter>
-    </ClCompile>
-    <ClCompile Include="07_stack的链式实现.c">
-      <Filter>源文件\DataStructure\LinearList</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="05_queue的实现.h">
@@ -58,12 +52,6 @@
     </ClInclude>
     <ClInclude Include="05_queue的case.h">
       <Filter>头文件\DataStructure\TestCase</Filter>
-    </ClInclude>
-    <ClInclude Include="07_stack的链式case.h">
-      <Filter>头文件\DataStructure\TestCase</Filter>
-    </ClInclude>
-    <ClInclude Include="07_stack的链式实现.h">
-      <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

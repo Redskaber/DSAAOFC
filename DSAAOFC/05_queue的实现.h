@@ -35,18 +35,25 @@
 
 			if queue_size < maxsize;
 	*/
-	#define MaxSize 20
+	#define MaxSize 10
+	#define InitMark 0
+	typedef int Rstatus;
 	typedef int ELemType;
 
-	typedef struct QUEUE
+	typedef struct STATICQUEUE
 	{
-		ELemType queue[MaxSize];
-		ELemType* front;
-		ELemType* rear;
-		size_t length;
-	}Queue;
+		ELemType queue[MaxSize];	// 维护的队列
+		int front;		// 前指针(由于使用的是数组构建)，所以直接使用数组下标作为记录反而封方便
+		int rear;		// 后指针
+		size_t length;	// 解决当队列front == rear 时，判断是空队列还是满队列时检测使用，方便处理， push +1， pop -1
+	}SQueue;
 	
+	
+	extern Rstatus staticQueueInit(SQueue* sq);
+	extern Rstatus staticQueueRearPush(SQueue* sq, ELemType data);
+	extern Rstatus staticQueueFrontPop(SQueue* sq);
 
+	extern Rstatus staticQueuePrint(SQueue* sq);
 
 
 
