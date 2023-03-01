@@ -16,13 +16,11 @@
 			1.初始化
 			2.边界问题处理
 				- rear 插入位置边界问题		(rear == MaxSize -1) > 	(sq->rear == MaxSize - 1) ? (sq->rear = 0) : (sq->rear++);
-				- front 移除位置边界问题	(front == MaxSize -1) > 
-
+				- front 移除位置边界问题	(front == MaxSize -1) >  (sq->front == MaxSize - 1) ? (sq->front = 0) : (sq->front++);
+	
 			3.rear == front {全满，全空}	-> length(实际有效个数)
 */
 
-static Rstatus frontEQrearHandle(SQueue* sq, ELemType data);
-static Rstatus rearBorderHandle(SQueue* sq, ELemType data);
 
 Rstatus staticQueueInit(SQueue* sq)
 {
@@ -38,64 +36,6 @@ Rstatus staticQueueInit(SQueue* sq)
 	*/
 	memset(sq->queue, InitMark, sizeof(sq->queue));
 	sq->front = sq->rear = sq->length = 0;
-	return true;
-}
-
-Rstatus frontEQrearHandle(SQueue* sq, ELemType data)
-{
-	/*
-								front
-		   -------------------------
-			[]	[]	[]	[]	[]	[]	    队列
-		   -------------------------
-								rear
-					|全空 |
-					  v
-			front
-		   -------------------------
-			[]	[]	[]	[]	[]	[1]	    队列
-		   -------------------------
-			rear
-
-								front
-		   -------------------------
-			[1]	[2]	[3]	[4]	[5]	[6]	    队列
-		   -------------------------
-								rear
-					|全满 |
-					  v
-		   return error overflow
-	
-	PS:判断 length 的实际长度
-	*/
-	if (sq->length)
-	{
-		printf("队列已满！%zd = %d\n",sq->length, MaxSize);
-		exit(0);
-	}
-	rearBorderHandle(sq, data);
-	return true;
-}
-
-Rstatus rearBorderHandle(SQueue* sq, ELemType data)
-{
-	/*
-					front
-		   -------------------------
-			[]	[]	[3]	[4]	[5]	[]	    队列
-		   -------------------------
-								rear
-
-					front
-		   -------------------------
-			[]	[]	[3]	[4]	[]	[]	    队列
-		   -------------------------
-							rear
-	
-	*/
-	sq->queue[sq->rear] = data;
-	sq->length++;
-	(sq->rear == MaxSize - 1) ? (sq->rear = 0) : (sq->rear++);
 	return true;
 }
 
@@ -117,9 +57,16 @@ Rstatus staticQueueRearPush(SQueue* sq, ELemType data)
 	ps: front != rear -> 肯定能够插入
 		front == rear -> 是不是队列满了
 	*/
-	if (sq->front == sq->rear) return frontEQrearHandle(sq, data);		// 边界, 全满（front = rear && length= MaxSize ）或者全空(length = 0)；
-	if (sq->front != sq->rear) return rearBorderHandle(sq, data);
-	exit(0);
+	if (sq->front == sq->rear && sq->length)		// 边界, 上溢出
+	{
+		printf("队列已满！%zd = %d\n", sq->length, MaxSize);
+		exit(0);
+	}
+	sq->queue[sq->rear] = data;
+	sq->length++;
+	(sq->rear == MaxSize - 1) ? (sq->rear = 0) : (sq->rear++); // 判断 rear 边界问题
+
+	return true;
 }
 
 Rstatus staticQueueFrontPop(SQueue* sq)
@@ -141,21 +88,15 @@ Rstatus staticQueueFrontPop(SQueue* sq)
 	2. 非空队列（sq->length != 0）
 
 	*/
-	if (!sq->length) 
+	if (!sq->length)	// 下溢出
 	{
 		printf("队列无元素! %zd %d", sq->length, MaxSize);
 		exit(0);
 	}
-	// 判断 front 边界问题
+	
 	sq->queue[sq->front] = InitMark;
 	sq->length--;
-
-	if (sq->front == MaxSize - 1)
-	{
-		sq->front = 0;
-		return true;
-	}
-	sq->front++;
+	(sq->front == MaxSize - 1) ? (sq->front = 0) : (sq->front++);	// 判断 front 边界问题
 	return true;
 }
 
