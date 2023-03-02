@@ -17,7 +17,8 @@
 // #include "02_seq_dynamic_case.h"
 // #include "03_single_linker_case.h"
 // #include "04_双向链表的Case.h"
-#include "05_queue的case.h"
+// #include "05_queue的case.h"
+#include "05_链式队列的Case.h"
 // #include "06_stack的case.h"
 // #include "07_stack的链式case.h"
 
@@ -27,10 +28,10 @@ int main()
 	// start_dynamic_linker();
 	// start_single_linker();
 	// start_bidirectional_linker();
-	start_queue();
+	// start_queue();
 	// start_stack();
 	// start_stack_of_link();
-
+	start_LinkQueue();
 
 	return 0;
 }

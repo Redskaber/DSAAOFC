@@ -39,18 +39,18 @@
     <ClCompile Include="DSAAOFC.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="05_queue的实现.c">
+    <ClCompile Include="05_链式队列的构建.c">
       <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
-    <ClCompile Include="05_queue的case.c">
+    <ClCompile Include="05_链式队列的Case.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="05_queue的实现.h">
+    <ClInclude Include="05_链式队列的构建.h">
       <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
-    <ClInclude Include="05_queue的case.h">
+    <ClInclude Include="05_链式队列的Case.h">
       <Filter>头文件\DataStructure\TestCase</Filter>
     </ClInclude>
   </ItemGroup>

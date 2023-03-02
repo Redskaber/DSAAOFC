@@ -127,13 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="05_queue的case.c" />
-    <ClCompile Include="05_queue的实现.c" />
+    <ClCompile Include="05_链式队列的Case.c" />
+    <ClCompile Include="05_链式队列的构建.c" />
     <ClCompile Include="DSAAOFC.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="05_queue的case.h" />
-    <ClInclude Include="05_queue的实现.h" />
+    <ClInclude Include="05_链式队列的Case.h" />
+    <ClInclude Include="05_链式队列的构建.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -53,11 +53,8 @@ Rstatus staticQueueRearPush(SQueue* sq, ELemType data)
 			[1]	[]	[]	[]	[]	[]	    队列
 		   -------------------------
 				rear = 1
-
-	ps: front != rear -> 肯定能够插入
-		front == rear -> 是不是队列满了
 	*/
-	if (sq->front == sq->rear && sq->length)		// 边界, 上溢出
+	if (sq->length == MaxSize)		// 边界, 上溢出
 	{
 		printf("队列已满！%zd = %d\n", sq->length, MaxSize);
 		exit(0);
