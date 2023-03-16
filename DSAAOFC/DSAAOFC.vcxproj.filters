@@ -39,18 +39,18 @@
     <ClCompile Include="DSAAOFC.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="05_链式队列的构建.c">
+    <ClCompile Include="10_二叉树的实现.c">
       <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
-    <ClCompile Include="05_链式队列的Case.c">
+    <ClCompile Include="10_二叉树的Case.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="05_链式队列的构建.h">
+    <ClInclude Include="10_二叉树的实现.h">
       <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
-    <ClInclude Include="05_链式队列的Case.h">
+    <ClInclude Include="10_二叉树的Case.h">
       <Filter>头文件\DataStructure\TestCase</Filter>
     </ClInclude>
   </ItemGroup>
