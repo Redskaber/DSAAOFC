@@ -134,6 +134,8 @@ BTNode* proRcursion(arrBinTree* abtree, BTNode* node, int flag, int leaf)
 	/*
 	* int flag: 控制遍历方向
 	* int leaf: 控制结束时机
+	* 1.深度递归
+	* 2.叶子处理
 	*/
 
 	if (node->leftChild != NotChildInd && flag == NextleftChild)		// 左孩子递归（深度）
@@ -143,7 +145,7 @@ BTNode* proRcursion(arrBinTree* abtree, BTNode* node, int flag, int leaf)
 		return proRcursion(abtree, node, flag, leaf);
 	}
 
-	if (node->leftChild == NotChildInd && node->rightChild == NotChildInd)	// 叶子处理
+	if (node->leftChild == NotChildInd && node->rightChild == NotChildInd)	// 左叶子处理
 	{
 		leaf++;	
 		flag = NextrightChild;
@@ -153,7 +155,7 @@ BTNode* proRcursion(arrBinTree* abtree, BTNode* node, int flag, int leaf)
 
 	}
 
-	if (node->rightChild == NotChildInd && flag == NextrightChild)			// 右节点处理
+	if (node->rightChild == NotChildInd && flag == NextrightChild)			// 右叶子处理
 	{
 		if (node->selfInd == 0)
 		{
@@ -179,7 +181,7 @@ BTNode* proRcursion(arrBinTree* abtree, BTNode* node, int flag, int leaf)
 		flag = NextleftChild;
 		node = abtree->array[node->rightChild];
 		printf("%d ", node->data);
-		if (node->leftChild == NotChildInd && node->rightChild == NotChildInd)
+		if (node->leftChild == NotChildInd && node->rightChild == NotChildInd)	// 右叶子处理
 		{
 			// 判断结束递归条件(leaf)
 			leaf++;
@@ -221,6 +223,8 @@ BTNode* proRcursion(arrBinTree* abtree, BTNode* node, int flag, int leaf)
 }
 
 
+BTNode* midRcursion(arrBinTree* abtree, BTNode* node, int flag, int leaf){}
+
 Rstatus proPrintBTree(arrBinTree* abtree)
 {
 	/*
@@ -240,6 +244,7 @@ Rstatus midPrintBTree(arrBinTree* abtree)
 		B C   => BAC
 	*/
 	BTNode* node = abtree->array[0];
+	midRcursion(abtree, node, NextleftChild, StartTempLeaf);		// 底部节点
 }
 
 Rstatus aftPrintBTree(arrBinTree* abtree)

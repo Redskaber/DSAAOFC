@@ -34,7 +34,8 @@
 // #include "06_stack的case.h"
 // #include "07_stack的链式case.h"
 // #include "cRealizeCase.h"
-#include "10_二叉树的Case.h"
+// #include "10_二叉树的Case.h"
+#include "11_二叉树的Case.h"
 
 int main()
 {
@@ -47,8 +48,8 @@ int main()
 	// start_stack();
 	// start_stack_of_link();
 	// start_class_realize();
-	start_binary_tree_case();
-
+	// start_binary_tree_case();
+	start_binaryTree_case();
 
 
 	return 0;
