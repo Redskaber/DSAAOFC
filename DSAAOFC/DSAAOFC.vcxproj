@@ -127,13 +127,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="11_二叉树的Case.c" />
-    <ClCompile Include="11_二叉树的实现.c" />
+    <ClCompile Include="20_图_无向图_邻接矩阵Case.c" />
+    <ClCompile Include="20_图_无向图_邻接矩阵的实现.c" />
     <ClCompile Include="DSAAOFC.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="11_二叉树的Case.h" />
-    <ClInclude Include="11_二叉树的实现.h" />
+    <ClInclude Include="20_图_无向图_邻接矩阵Case.h" />
+    <ClInclude Include="20_图_无向图_邻接矩阵的实现.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

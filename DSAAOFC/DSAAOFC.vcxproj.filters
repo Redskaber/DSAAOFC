@@ -39,19 +39,19 @@
     <ClCompile Include="DSAAOFC.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="11_二叉树的实现.c">
-      <Filter>源文件\DataStructure\LinearList</Filter>
-    </ClCompile>
-    <ClCompile Include="11_二叉树的Case.c">
+    <ClCompile Include="20_图_无向图_邻接矩阵Case.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
+    </ClCompile>
+    <ClCompile Include="20_图_无向图_邻接矩阵的实现.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="11_二叉树的实现.h">
-      <Filter>头文件\DataStructure\LinearList</Filter>
-    </ClInclude>
-    <ClInclude Include="11_二叉树的Case.h">
+    <ClInclude Include="20_图_无向图_邻接矩阵Case.h">
       <Filter>头文件\DataStructure\TestCase</Filter>
+    </ClInclude>
+    <ClInclude Include="20_图_无向图_邻接矩阵的实现.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
