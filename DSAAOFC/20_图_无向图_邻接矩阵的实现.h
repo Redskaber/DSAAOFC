@@ -17,15 +17,15 @@
 	{
 		VertexType vexArr[MaxVertexNum];
 		int edgeArr[MaxVertexNum][MaxVertexNum];
-		int vexNum,arcNum;
+		int vexNum, arcNum;
+
+		void (*printArcArr)(struct UGraph* ugp);
+		void (*printVexArr)(struct UGraph* ugp);
+		int  (*vertexInGraph)(struct UGraph* ugp, int vertex);
+		int  (*vertexDgree)(struct UGraph* ugp, int vertex);
+		void (*depthFirstSearch)(struct UGraph* ugp);
+		void (*breadthFirstSearch)(struct UGraph* ugp);
 
 	}UGraph;
 	extern void createUGraphInit(UGraph* ugp, int vexNum, int arcNum);
-	extern void printArcArr(UGraph* ugp);
-	extern void printVexArr(UGraph* ugp);
-	extern int vertexInGraph(UGraph* ugp, int vertex);
-	extern int vertexDgree(UGraph* ugp, int vertex);
-	extern void depthFirstSearch(UGraph* ugp);
-	extern void breadthFirstSearch(UGraph* ugp);
-
 #endif // !__20_图_无向图_邻接矩阵的实现_H__

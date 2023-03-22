@@ -17,15 +17,14 @@ int start_undirectedGraph_case()
 	//printVexArr(&ugp);
 
 	int inInd = -1;
-	inInd = vertexInGraph(&ugp, 3);
+	inInd = ugp.vertexInGraph(&ugp, 3);
 	printf("inInd:%d\n",inInd);
 	int cout = 0;
-	cout = vertexDgree(&ugp, 3);
+	cout = ugp.vertexDgree(&ugp, 3);
 	printf("cout:%d\n", cout);
-	depthFirstSearch(&ugp);
+	ugp.depthFirstSearch(&ugp);
 
-	breadthFirstSearch(&ugp);
-
+	ugp.breadthFirstSearch(&ugp);
 
 	// printf("ugp.vexNum:%d ugp.arcNum:%d\n", ugp.vexNum, ugp.arcNum);
 

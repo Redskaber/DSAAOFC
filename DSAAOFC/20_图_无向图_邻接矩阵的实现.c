@@ -27,6 +27,13 @@
 static bool depthvisited[MaxVertexNum];	//访问标记数组
 static bool breadthvisited[MaxVertexNum];	//访问标记数组
 
+static int vertexDgree(UGraph* ugp, int vertex);
+static int vertexInGraph(UGraph* ugp, int vertex);
+static void depthFirstSearch(UGraph* ugp);
+static void printArcArr(UGraph* ugp);
+static void printVexArr(UGraph* ugp);
+static void breadthFirstSearch(UGraph* ugp);
+
 void createUGraphInit(UGraph* ugp, int vexNum, int arcNum)
 {
 	assert(vexNum <= MaxVertexNum);
@@ -59,37 +66,40 @@ void createUGraphInit(UGraph* ugp, int vexNum, int arcNum)
 		}
 		printf("\n");
 	}
+
+	ugp->printArcArr = printArcArr;
+	ugp->printVexArr = printVexArr;
+	ugp->vertexInGraph = vertexInGraph;
+	ugp->vertexDgree = vertexDgree;
+	ugp->depthFirstSearch = depthFirstSearch;
+	ugp->breadthFirstSearch = breadthFirstSearch;
 }
 
-int vertexInGraph(UGraph* ugp, int vertex)
+static int vertexInGraph(UGraph* ugp, int vertex)
 {
 	for (int i = 0; i < ugp->vexNum; i++)
-	{
 		if (ugp->vexArr[i] == vertex) return i;		// row for
-	}
 	return -1;
 }
 
-int vertexDgree(UGraph* ugp, int vertex)
+static int vertexDgree(UGraph* ugp, int vertex)
 {
 	int cout = 0;
 	int inInd = vertexInGraph(ugp, vertex);
 	if (inInd != -1)
 	{
-		for (int i = 0; i < ugp->vexNum; i++)		// col for
-		{
+		for (int i = 0; i < ugp->vexNum; i++)
 			if (ugp->edgeArr[inInd][i] != notex) cout++;
-		}
 	}
 	return cout;
 }
 
-void visit(UGraph* ugp, int vexInd)
+static void visit(UGraph* ugp, int vexInd)
 {
 	printf("%d ",ugp->vexArr[vexInd]);
 }
 
-int depthfirstNeihbor(UGraph* ugp, int vexInd)
+static int depthfirstNeihbor(UGraph* ugp, int vexInd)
 {
 	//求图G中顶点v的第一个邻接点，若有则返回顶点下标，否则返回-1。
 	int row = vexInd, col;
@@ -97,13 +107,14 @@ int depthfirstNeihbor(UGraph* ugp, int vexInd)
 	{
 		/*边存在并且是未被遍历过的*/
 		if (ugp->edgeArr[row][col] != notex && !depthvisited[col]) return col;
-		else if (ugp->edgeArr[row][col] != notex && depthvisited[col] && vexInd > 1) depthfirstNeihbor(ugp, vexInd - 1); /*边界回退*/
+		else if (ugp->edgeArr[row][col] != notex && depthvisited[col] && vexInd > 1) 
+			depthfirstNeihbor(ugp, vexInd - 1); /*边界回退*/
 	}
 
 	return -1;
 }
 
-int depthnextNeighbor(UGraph* ugp, int vexInd, int nextInd)
+static int depthnextNeighbor(UGraph* ugp, int vexInd, int nextInd)
 {
 	//假设图G中顶点vexInd是顶点nextVex的一个邻接点，返回除vexInd外顶点nextVex	
 	int row = vexInd, col;
@@ -115,7 +126,7 @@ int depthnextNeighbor(UGraph* ugp, int vexInd, int nextInd)
 	return  -1;
 }
 
-void DFS(UGraph* ugp, int vexInd)
+static void DFS(UGraph* ugp, int vexInd)
 {
 	/*
 	首先访问图中某一起始顶点vexInd，然后由vexInd出发，访问与vexInd邻接且未被访问的任一顶点nextVexInd，再访问与nextVexInd邻接且未被访问的任一顶点
@@ -124,13 +135,15 @@ void DFS(UGraph* ugp, int vexInd)
 	int nextVexInd;
 	visit(ugp, vexInd);
 	depthvisited[vexInd] = true;
-	for (nextVexInd = depthfirstNeihbor(ugp, vexInd); nextVexInd > 0; nextVexInd = depthnextNeighbor(ugp, vexInd, nextVexInd)) {
-		if (!depthvisited[nextVexInd]) DFS(ugp, nextVexInd); 		//nextVexInd为vexInd的尚未访问的邻接顶点	
 
+	nextVexInd = depthfirstNeihbor(ugp, vexInd);
+	for (nextVexInd; nextVexInd > 0; nextVexInd) {
+		if (!depthvisited[nextVexInd]) DFS(ugp, nextVexInd); 		//nextVexInd为vexInd的尚未访问的邻接顶点	
+		nextVexInd = depthnextNeighbor(ugp, vexInd, nextVexInd);
 	}
 }
 
-void depthFirstSearch(UGraph* ugp)
+static void depthFirstSearch(UGraph* ugp)
 {
 	/*图的深度优先算法，类似于树的先序遍历
 				0
@@ -140,23 +153,23 @@ void depthFirstSearch(UGraph* ugp)
 	*/
 	if (ugp->vexNum - 1 >= ugp->arcNum) return;
 	memset(depthvisited, false, sizeof(depthvisited));
-	for (int vexInd = 0; vexInd < ugp->vexNum; ++vexInd) if (!depthvisited[vexInd]) DFS(ugp, vexInd);	// 访问第一个顶点
+	for (int vexInd = 0; vexInd < ugp->vexNum; ++vexInd) 
+		if (!depthvisited[vexInd]) DFS(ugp, vexInd);	// 访问第一个顶点
 	printf("\n");
 }
 
-
-void queueInit(Queue* queue)
+static void queueInit(Queue* queue)
 {
 	memset(queue->queue, -1, sizeof(queue->queue));
 	queue->length = 0;
 }
 
-void enqueue(Queue* queue, int data)
+static void enqueue(Queue* queue, int data)
 {
 	queue->queue[queue->length++] = data;
 }
 
-void unqueue(Queue* queue, int ind)
+static void unqueue(Queue* queue, int ind)
 {
 	for (int i = 0; i < queue->length; i++)
 	{
@@ -166,21 +179,19 @@ void unqueue(Queue* queue, int ind)
 	queue->length--;
 }
 
-bool queueEmpty(Queue* queue)
+static bool queueEmpty(Queue* queue)
 {
 	return queue->length == 0;
 }
 
-void printQueue(Queue* queue)
+static void printQueue(Queue* queue)
 {
-	for (int i = 0; i < queue->length; i++)
-	{
-		printf("%d ",(int)queue->queue[i]);
-	}
+	for (int i = 0; i < queue->length; i++) 
+		printf("%d ", (int)queue->queue[i]);
 	printf("\n");
 }
 
-int breadthfirstNeihbor(UGraph* ugp, int vexInd)
+static int breadthfirstNeihbor(UGraph* ugp, int vexInd)
 {
 	//求图G中顶点v的第一个邻接点，若有则返回顶点下标，否则返回-1。
 	int row = vexInd, col;
@@ -188,26 +199,27 @@ int breadthfirstNeihbor(UGraph* ugp, int vexInd)
 	{
 		/*边存在并且是未被遍历过的*/
 		if (ugp->edgeArr[row][col] != notex && !breadthvisited[col]) return col;
-		else if (ugp->edgeArr[row][col] != notex && breadthvisited[col] && vexInd > 1) breadthfirstNeihbor(ugp, vexInd - 1); /*边界回退*/
+		else if (ugp->edgeArr[row][col] != notex && breadthvisited[col] && vexInd > 1) 
+			breadthfirstNeihbor(ugp, vexInd - 1); /*边界回退*/
 	}
 
 	return -1;
 }
 
-int breadthnextNeighbor(UGraph* ugp, int vexInd, int nextInd)
+static int breadthnextNeighbor(UGraph* ugp, int vexInd, int nextInd)
 {
 	//假设图G中顶点vexInd是顶点nextVex的一个邻接点，返回除vexInd外顶点nextVex		
 	int row = vexInd, col;
 	for (col = 0; col < ugp->vexNum; col++)
 	{
 		int edgeEx = ugp->edgeArr[row][col];	// 由顶点vex所邻接的所有顶点集合
-		if (edgeEx == exist && ugp->vexArr[vexInd] != ugp->vexArr[nextInd] && !breadthvisited[col]) return col;
+		if (edgeEx == exist && ugp->vexArr[vexInd] != ugp->vexArr[nextInd] && !breadthvisited[col]) 
+			return col;
 	}
 	return  -1;
 }
 
-
-void breadthFirstSearch(UGraph* ugp)
+static void breadthFirstSearch(UGraph* ugp)
 {
 	/* 图的广度优先遍历算法，类似于数的层级遍历
 				0
@@ -225,6 +237,7 @@ void breadthFirstSearch(UGraph* ugp)
 		for vex in (queue) -> breadthvisited[vex] && if(!breadthvisited[vex]) queue 
 	*/
 	if (ugp->vexNum - 1 >= ugp->arcNum) return;
+	int nextVexInd;
 
 	Queue queue;
 	queueInit(&queue);
@@ -233,31 +246,30 @@ void breadthFirstSearch(UGraph* ugp)
 	{
 		if (!breadthvisited[vexInd])
 		{
-			visit(ugp, vexInd);				//访问顶点
+			visit(ugp, vexInd);				// 访问顶点
 			breadthvisited[vexInd] = true;	// 标记
-			enqueue(&queue, vexInd);	//将此顶点入队列
-			//若当前队列不为空
-			while (!queueEmpty(&queue)) {
-				unqueue(&queue, vexInd);	//顶点i出队列
-				for (int nextVexInd = breadthfirstNeihbor(ugp, vexInd); nextVexInd >= 0; nextVexInd = breadthnextNeighbor(ugp, vexInd, nextVexInd)) {
+			enqueue(&queue, vexInd);		// 将此顶点入队列
+
+			while (!queueEmpty(&queue)) {	// 若当前队列不为空
+
+				unqueue(&queue, vexInd);	// 顶点i出队列
+
+				nextVexInd = breadthfirstNeihbor(ugp, vexInd);
+				for (nextVexInd; nextVexInd >= 0; nextVexInd) {
 					if (!breadthvisited[nextVexInd])
 					{
-						visit(ugp, nextVexInd);				//访问顶点j
-						breadthvisited[nextVexInd] = true;	//访问标记
-						enqueue(&queue, nextVexInd);						//顶点j入队列
+						visit(ugp, nextVexInd);					// 访问顶点
+						breadthvisited[nextVexInd] = true;		// 访问标记
+						enqueue(&queue, nextVexInd);			//顶点j入队列
 					}
-
+					nextVexInd = breadthnextNeighbor(ugp, vexInd, nextVexInd);
 				}
 			}
 		}
 	};
-	//printQueue(&queue);
-	//printf("length:%d\n",queue.length);
 }
 
-
-
-void printArcArr(UGraph* ugp)
+static void printArcArr(UGraph* ugp)
 {
 	for (int row = 0; row < ugp->vexNum; row++)
 	{
@@ -269,7 +281,7 @@ void printArcArr(UGraph* ugp)
 	}
 }
 
-void printVexArr(UGraph* ugp)
+static void printVexArr(UGraph* ugp)
 {
 	for (int i = 0; i < ugp->vexNum; i++) printf("%d ",ugp->vexArr[i]);
 	printf("\n");
