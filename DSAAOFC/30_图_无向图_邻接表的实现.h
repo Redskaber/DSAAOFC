@@ -12,30 +12,47 @@
 			- 边表（顶点到临点的边，记录临点INd与指向下一个临点）
 	*/
 
-#define MaxVexNum 100	 
-typedef int VertexType;
-// typedef int EdgeType;
+	#define MaxVexNum 100	 
+	#define vertexInNum 6	 
+	typedef int VertexType;
+	// typedef int EdgeType;
 
-typedef struct EdgeNode
-{
-	int adjVexInd;
-	// EdgeType weight;
-	struct EdgeNode* next;
+	typedef struct QUEUE
+	{
+		int queue[MaxVexNum];
+		int length;
+	}Queue;
 
-}EdgeNode;
+	typedef struct EdgeNode
+	{
+		int adjVexInd;
+		// EdgeType weight;
+		struct EdgeNode* next;
+
+	}EdgeNode;
 
 
-typedef struct VertexNode
-{
-	VertexType data;
-	EdgeNode* firstEdge;
-}VertexNode, AdjList[MaxVexNum];
+	typedef struct VertexNode
+	{
+		VertexType data;
+		EdgeNode* firstEdge;
+	}VertexNode, *AdjList[MaxVexNum];
 
 
-typedef struct AdjacencyGraph
-{
-	AdjList adjlist;
-	int vexNum, arcNum;
-}AGraph;
+	typedef struct AdjacencyGraph
+	{
+		AdjList adjlist;
+		int vexNum, arcNum;
+	}AGraph;
+
+	Queue queue;
+
+	extern void adjGraphInit(AGraph* agp, int vexNum, VertexType* vexArr, VertexType (*vexRela)[vertexInNum]);
+	extern void printAGraph(AGraph* agp);
+	extern void destroyAGraph(AGraph* agp);
+	extern void printRelaArr(VertexType(*vexRelaArr)[vertexInNum]);
+	extern void _depthFirstSearch(AGraph* agp, int adjInd);
+	extern void depthFirstSearch(AGraph* agp, VertexType startVex);
+	extern void printVexNodeLink(AGraph* agp, int adjInd);
 
 #endif // !__30_图_无向图_邻接表的实现_H__
