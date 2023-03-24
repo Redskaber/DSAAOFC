@@ -49,8 +49,8 @@
 // #include "10_二叉树的Case.h"
 // #include "11_二叉树的Case.h"
 // #include "20_图_无向图_邻接矩阵Case.h"
-#include "30_图_无向图_邻接表Case.h"
-// #include "40_图_有向图_十字链表Case.h"
+// #include "30_图_无向图_邻接表Case.h"
+#include "40_图_有向图_十字链表Case.h"
 // #include "40_图_有向图_邻接多重表Case.h"
 // #include "40_图_有向图_边集数组Case.h"
 
@@ -68,8 +68,8 @@ int main()
 	// start_binary_tree_case();
 	// start_binaryTree_case();
 	// start_undirectedGraph_case();
-	start_adjacencyTable_Graph_case();	
-	// start_CrossLinke_list_case();
+	// start_adjacencyTable_Graph_case();	
+	start_CrossLinkelist_Graph_case();
 	// start_adjacency_multiple_Graph_case();
 	// start_edgeSet_array_Graph_case();
 

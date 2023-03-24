@@ -39,19 +39,19 @@
     <ClCompile Include="DSAAOFC.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="30_图_无向图_邻接表的实现.c">
-      <Filter>源文件\DataStructure\LinearList</Filter>
-    </ClCompile>
-    <ClCompile Include="30_图_无向图_邻接表Case.c">
+    <ClCompile Include="40_图_有向图_十字链表Case.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
+    </ClCompile>
+    <ClCompile Include="40_图_有向图_十字链表的实现.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="30_图_无向图_邻接表的实现.h">
-      <Filter>头文件\DataStructure\LinearList</Filter>
-    </ClInclude>
-    <ClInclude Include="30_图_无向图_邻接表Case.h">
+    <ClInclude Include="40_图_有向图_十字链表Case.h">
       <Filter>头文件\DataStructure\TestCase</Filter>
+    </ClInclude>
+    <ClInclude Include="40_图_有向图_十字链表的实现.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
