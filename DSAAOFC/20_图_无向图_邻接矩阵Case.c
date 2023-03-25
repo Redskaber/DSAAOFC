@@ -10,7 +10,21 @@
 int start_undirectedGraph_case()
 {
 	UGraph ugp;
-	createUGraphInit(&ugp,10,16);
+
+	int vexArr[10] = { 11, 22, 33, 44, 55, 66, 77, 88, 99, 00 };
+	int vexEdgeRelaArr[10][10] = {
+		{0,	2, 2, 6, 2, 8, 0, 4, 0, 2},
+		{2,	0, 0, 2, 0, 0, 2, 0, 2, 0},
+		{2,	0, 0, 4, 6, 4, 0, 2, 0, 4},
+		{6,	2, 4, 0, 6, 0, 2, 4, 0, 2},
+		{2,	0, 6, 6, 0, 8, 0, 4, 0, 0},
+		{8,	0, 4, 0, 8, 0, 6, 2, 6, 8},
+		{0,	2, 0, 2, 0, 6, 0, 6, 0, 2},
+		{4,	0, 2, 4, 4, 2, 6, 0, 8, 0},
+		{0,	2, 0, 0, 0, 6, 0, 8, 0, 2},
+		{2,	0, 4, 2, 0, 8, 2, 0, 2, 0},
+	};
+	createUGraphInit(&ugp,10, vexArr, vexEdgeRelaArr);
 	printf("%d %d\n", ugp.vexNum,ugp.arcNum);
 
 	//printArcArr(&ugp);
@@ -25,7 +39,7 @@ int start_undirectedGraph_case()
 	ugp.depthFirstSearch(&ugp);
 
 	ugp.breadthFirstSearch(&ugp);
-
+	ugp.MiniSpanTree_Prim(&ugp);
 	// printf("ugp.vexNum:%d ugp.arcNum:%d\n", ugp.vexNum, ugp.arcNum);
 
 	return 0;

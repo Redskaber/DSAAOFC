@@ -17,12 +17,12 @@ int start_CrossLinkelist_Graph_case()
 	// IN
 
 	int relaArr2[6][6] = {
-	{65535, 1,    65535,	  2, 65535, 65535},			// OUT
-	{3,     65535,    3,  65535,     1, 65535},
-	{65535,     1,    65535,  4, 65535,	65535},
-	{4,		65535,     4, 65535,     1,	    3},
-	{3,		    1,     4, 65535, 65535,     3},
-	{65535, 65535, 65535,     3,     1, 65535},
+	{65535,		5, 65535,	 15, 65535, 65535},			// OUT
+	{10,    65535,    20, 65535,    20, 65535},
+	{65535,    15, 65535,    15, 65535,	65535},
+	{10,	65535,    10, 65535,    15,	    5},
+	{25,	    5,    15, 65535, 65535,     5},
+	{65535, 65535, 65535,     5,    10, 65535},
 	};
 
 	// CrossLinkGraphInit(&clgp, 4, vexArr, relaArr);
@@ -30,6 +30,12 @@ int start_CrossLinkelist_Graph_case()
 	clgp.printVexEdgeSet(&clgp);
 	clgp.depthFirstSearch(&clgp, 0);
 	clgp.breadthFirstSearch(&clgp, 0);
+	
+	int vexInNum	= clgp.vertexInedgeNumber(&clgp, 0);
+	int vexOutNum	= clgp.vertexOutedgeNumber(&clgp, 0);
+	printf("vexInNum:%d, vexOutNum:%d\n", vexInNum, vexOutNum);
+	clgp.MinimumSpanTree(&clgp, 0);
+	prim(&clgp, 0);
 	destroyCrossGraph(&clgp);
 	printf("clgp->vexNum:%d, clgp->arcNum:%d\n", clgp.vexNum, clgp.arcNum);
 

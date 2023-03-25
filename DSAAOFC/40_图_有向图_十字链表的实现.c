@@ -20,6 +20,9 @@
 static void BFS(CLGraph* clgp, int vexInd, BVisited* breadthVisited);
 static void depthFirstSearch(CLGraph* clgp, int vexInd);
 static void breadthFirstSearch(CLGraph* clgp, int vexInd);
+static int  vertexInedgeNumber(CLGraph* clgp, int vexInd);
+static int  vertexOutedgeNumber(CLGraph* clgp, int vexInd);
+static void MinimumSpanTree(CLGraph* clgp, int vexInd);
 static void printVexEdgeSet(CLGraph* clgp);
 
 
@@ -91,7 +94,7 @@ static BVisited* createBreadthVisited(int arrLen)
 	int visitedSize;
 	BVisited* newBreadthVisited = NULL;
 
-	newBreadthVisited = (DVisited*)malloc(sizeof(DVisited));
+	newBreadthVisited = (BVisited*)malloc(sizeof(BVisited));
 	assert(newBreadthVisited != NULL);
 
 	visitedSize = arrLen * sizeof(bool);
@@ -291,18 +294,24 @@ static void initCrossGraphVexRela(CLGraph* clgp, int(*vexRelaArr)[VexRelaArrNum]
 				// 本身顶点与邻接顶点之间都存在相互联通的边时
 				// cLvexTemp <-> cLvexADJ
 
-				cLvexEdge = createEdgeNode();
 				inEdge = createInEdge(weightIn, frontInd); 
 				outEdge = createOutEdge(weightOut, frontInd); 
-				cLvexEdge->inEdgeSet = inEdge;
-				cLvexEdge->outEdgeSet = outEdge;
 
 				if (cLvexTemp->vexEdgeSet)
 				{
-					cLvexEdge->inEdgeSet->next = cLvexTemp->vexEdgeSet->inEdgeSet;		// 进边
-					cLvexEdge->outEdgeSet->next = cLvexTemp->vexEdgeSet->outEdgeSet;	// 出边
+					inEdge->next = cLvexTemp->vexEdgeSet->inEdgeSet;		// 进边
+					outEdge->next = cLvexTemp->vexEdgeSet->outEdgeSet;		// 出边
+					cLvexTemp->vexEdgeSet->inEdgeSet = inEdge;
+					cLvexTemp->vexEdgeSet->outEdgeSet = outEdge;
+
 				}
-				cLvexTemp->vexEdgeSet = cLvexEdge;
+				if (!cLvexTemp->vexEdgeSet)
+				{
+					cLvexEdge = createEdgeNode();
+					cLvexEdge->inEdgeSet = inEdge;
+					cLvexEdge->outEdgeSet = outEdge;
+					cLvexTemp->vexEdgeSet = cLvexEdge;
+				}
 
 				clgp->arcNum++;
 				clgp->arcNum++;
@@ -372,10 +381,56 @@ void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexTy
 	printf("clgp->vexNum:%d, clgp->arcNum:%d\n", clgp->vexNum, clgp->arcNum);
 
 
-	clgp->depthFirstSearch = depthFirstSearch;
-	clgp->breadthFirstSearch = breadthFirstSearch;
-	clgp->printVexEdgeSet = printVexEdgeSet;
+	clgp->depthFirstSearch		= depthFirstSearch;
+	clgp->breadthFirstSearch	= breadthFirstSearch;
+	clgp->vertexInedgeNumber	= vertexInedgeNumber;
+	clgp->vertexOutedgeNumber	= vertexOutedgeNumber;
+	clgp->printVexEdgeSet		= printVexEdgeSet;
+	clgp->MinimumSpanTree		=  MinimumSpanTree;
 
+
+}
+
+
+static int vertexInedgeNumber(CLGraph* clgp, int vexInd)
+{
+	EdgeNode* tempEdge;
+	InEdge* tempIn;
+	int inNumber = 0;
+
+	assert(vexInd < clgp->vexNum&& vexInd >= 0);
+	tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
+	if (tempEdge == NULL) return inNumber;
+
+	tempIn = tempEdge->inEdgeSet;
+	while (tempIn)
+	{
+		tempIn = tempIn->next;
+		inNumber++;
+	}
+
+	return inNumber;
+}
+
+
+static int vertexOutedgeNumber(CLGraph* clgp, int vexInd)
+{
+	EdgeNode* tempEdge;
+	OutEdge* tempOut;
+	int outNumber = 0;
+
+	assert(vexInd < clgp->vexNum&& vexInd >= 0);
+	tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
+	if (tempEdge == NULL) return outNumber;
+
+	tempOut = tempEdge->outEdgeSet;
+	while (tempOut)
+	{
+		tempOut = tempOut->next;
+		outNumber++;
+	}
+
+	return outNumber;
 }
 
 
@@ -506,6 +561,133 @@ static void breadthFirstSearch(CLGraph* clgp, int vexInd)
 	destroyBreadthVisited(breadthVisited);
 	printf("\n");
 }
+
+
+void mstvisit(CLGraph* clgp, int outToVexInd, int outWeight, BVisited* mstvisited)
+{
+	mstvisited->length++;
+	mstvisited->breadthVisited[outToVexInd] = true;
+	printf("(%d %d)", outToVexInd, outWeight);
+
+}
+
+void getNeibhorMinWeight(CLGraph* clgp, int vexInd, BVisited* mstvisited, int* ind, int* weight)
+{
+	EdgeNode* tempEdge;
+	InEdge* tempIn;
+	OutEdge* tempOut;
+	int			MinWeight = VexMaxDistance;
+
+	tempEdge = clgp->crossList[vexInd]->vexEdgeSet;		// 出发点
+	tempIn = tempEdge->inEdgeSet;
+	tempOut = tempEdge->outEdgeSet;
+
+	while (tempIn)
+	{
+		if (!mstvisited->breadthVisited[tempIn->inVexInd] && tempIn->inWeight < MinWeight)
+		{
+			MinWeight = *weight = tempIn->inWeight;
+			*ind = tempIn->inVexInd;
+		}
+		else tempIn = tempIn->next;
+	}
+
+	while (tempOut)
+	{
+		if (!mstvisited->breadthVisited[tempOut->outToVexInd] && tempOut->outWeight < MinWeight)
+		{
+			MinWeight = *weight = tempOut->outWeight;
+			*ind = tempOut->outToVexInd;
+		}
+		else tempOut = tempOut->next;
+	}
+}
+
+
+static void MST(CLGraph* clgp, int vexInd, BVisited* mstvisited)
+{
+	int ind = -1, weight = 65535;
+	getNeibhorMinWeight(clgp, vexInd, mstvisited, &ind, &weight);
+
+	if (ind != -1 && !mstvisited->breadthVisited[ind])
+	{
+		mstvisit(clgp, ind, weight, mstvisited);
+		if (clgp->vexNum > mstvisited->length) MST(clgp, ind, mstvisited);
+	}
+}
+
+static void MinimumSpanTree(CLGraph* clgp, int vexInd)
+{
+	/*不考虑顶点之间的互通性，只考虑一个顶点可以访问一个顶点，全体不成环即可*/
+	BVisited* mstvisited = createBreadthVisited(clgp->vexNum);
+	mstvisit(clgp, vexInd, 0, mstvisited);
+
+	MST(clgp, vexInd, mstvisited);
+
+}
+
+
+/* Prim 算法实现最小生成树 */
+void prim(CLGraph* graph, int start) {
+	int i, j, k, min;
+	EdgeNode* edge;
+	OutEdge* tempOut;
+	bool visited[VexMaxNum]; /* 保存已找到的最小生成树的顶点 */
+	int dist[VexMaxNum]; /* 保存其它顶点到最小生成树的距离 */
+	int parent[VexMaxNum]; /* 保存当前顶点在最小生成树中的父节点 */
+
+	/* 初始化 visited 数组、dist 数组、parent 数组 */
+	for (i = 0; i < graph->vexNum; i++) {
+		visited[i] = false;
+		dist[i] = VexMaxDistance;
+		parent[i] = -1;
+	}
+
+	/* 从指定的起点开始遍历 */
+	visited[start] = true;
+	dist[start] = 0;
+	edge = graph->crossList[start]->vexEdgeSet;
+	tempOut = edge->outEdgeSet;
+	while (tempOut != NULL) {
+		dist[tempOut->outToVexInd] = tempOut->outWeight;
+		parent[tempOut->outToVexInd] = start;
+		tempOut = tempOut->next;
+	}
+
+	/* 依次将其它顶点加入到最小生成树中 */
+	for (i = 1; i < graph->vexNum; i++) {
+		/* 选择下一个顶点 */
+		min = VexMaxDistance;
+		for (j = 0; j < graph->vexNum; j++) {
+			if (!visited[j] && dist[j] < min) {
+				min = dist[j];
+				k = j;
+			}
+		}
+
+		/* 将选中的顶点加入到最小生成树中 */
+		visited[k] = true;
+		edge = graph->crossList[start]->vexEdgeSet;
+		tempOut = edge->outEdgeSet;
+		while (tempOut != NULL) {
+			if (!visited[tempOut->outToVexInd] && tempOut->outWeight < dist[tempOut->outToVexInd]) {
+				dist[tempOut->outToVexInd] = tempOut->outWeight;
+				parent[tempOut->outToVexInd] = k;
+			}
+			tempOut = tempOut->next;
+		}
+	}
+
+	/* 打印最小生成树 */
+	for (i = 0; i < graph->vexNum; i++) {
+		if (parent[i] != -1) {
+			printf("(%d,%d) ", parent[i], i);
+		}
+	}
+	printf("\n");
+}
+
+
 
 
 static void printVexEdgeSet(CLGraph* clgp)

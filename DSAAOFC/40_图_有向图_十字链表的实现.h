@@ -69,19 +69,31 @@
 		EdgeNode* vexEdgeSet;
 	}VertexNode, *CrossList[VexMaxNum];
 
+	/* 边集数组 */
+	typedef struct EdgeSet {
+		int startVexInd, endVexInd;
+		EdgeType weight;
+	} EdgeSet;
+
 	/*十字链表*/
 	typedef struct CrossLinkGraph
 	{
 		CrossList crossList;
 		int vexNum, arcNum;
 
-		void (*printVexEdgeSet)(struct CLGraph* clgp);
-		void (*depthFirstSearch)(struct CLGraph* clgp, int vexInd);
-		void (*breadthFirstSearch)(struct CLGraph* clgp, int vexInd);
+		void (*printVexEdgeSet)		(struct CLGraph* clgp);
+		void (*depthFirstSearch)	(struct CLGraph* clgp, int vexInd);
+		void (*breadthFirstSearch)	(struct CLGraph* clgp, int vexInd);
+		int  (*vertexInedgeNumber)	(struct CLGraph* clgp, int vexInd);
+		int  (*vertexOutedgeNumber)	(struct CLGraph* clgp, int vexInd);
+		void (*MinimumSpanTree)     (struct CLGraph* clgp, int vexInd);
+
+
 	}CLGraph;
 
 	extern void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexType(*vexRelaArr)[VexRelaArrNum]);
 	extern void destroyCrossGraph(CLGraph* clgp);
+	extern void prim(CLGraph* graph, int start);
 
 
 #endif // !__40_图_有向图_十字链表的实现_H__

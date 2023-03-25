@@ -3,15 +3,17 @@
 #ifndef __20_图_无向图_邻接矩阵的实现_H__
 	#define __20_图_无向图_邻接矩阵的实现_H__
 	#define MaxVertexNum 30
+	#define VexRelaArrNum 10
+	#define WeightMax 65535
 	#define exist 1
 	#define notex 0
 	typedef int VertexType;
 
-	typedef struct QUEUE
+	typedef struct STACK
 	{
-		VertexType queue[MaxVertexNum];
+		VertexType stack[MaxVertexNum];
 		int length;
-	}Queue;
+	}Stack;
 
 	typedef struct UndirectGraph
 	{
@@ -25,7 +27,10 @@
 		int  (*vertexDgree)(struct UGraph* ugp, int vertex);
 		void (*depthFirstSearch)(struct UGraph* ugp);
 		void (*breadthFirstSearch)(struct UGraph* ugp);
+		void (*MiniSpanTree_Prim)(struct UGraph* ugp);
+
 
 	}UGraph;
-	extern void createUGraphInit(UGraph* ugp, int vexNum, int arcNum);
+	extern void createUGraphInit(UGraph* ugp, int vexNum, int vexArr[], int(*vexRelaArr)[VexRelaArrNum]);
+
 #endif // !__20_图_无向图_邻接矩阵的实现_H__
