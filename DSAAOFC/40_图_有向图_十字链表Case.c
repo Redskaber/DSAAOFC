@@ -34,8 +34,7 @@ int start_CrossLinkelist_Graph_case()
 	int vexInNum	= clgp.vertexInedgeNumber(&clgp, 0);
 	int vexOutNum	= clgp.vertexOutedgeNumber(&clgp, 0);
 	printf("vexInNum:%d, vexOutNum:%d\n", vexInNum, vexOutNum);
-	clgp.MinimumSpanTree(&clgp, 0);
-	prim(&clgp, 0);
+	clgp.MinimumSpanTree_Prim(&clgp, 0);
 	destroyCrossGraph(&clgp);
 	printf("clgp->vexNum:%d, clgp->arcNum:%d\n", clgp.vexNum, clgp.arcNum);
 

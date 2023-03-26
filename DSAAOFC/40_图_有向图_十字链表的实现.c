@@ -22,7 +22,7 @@ static void depthFirstSearch(CLGraph* clgp, int vexInd);
 static void breadthFirstSearch(CLGraph* clgp, int vexInd);
 static int  vertexInedgeNumber(CLGraph* clgp, int vexInd);
 static int  vertexOutedgeNumber(CLGraph* clgp, int vexInd);
-static void MinimumSpanTree(CLGraph* clgp, int vexInd);
+static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd);
 static void printVexEdgeSet(CLGraph* clgp);
 
 
@@ -124,6 +124,34 @@ static Stack* createStack(int stackLen)
 	newStack->length = 0;
 
 	return newStack;
+}
+
+
+static PrimTool* createPrimtool(CLGraph* clgp)
+{
+	PrimTool* newPrimtool = NULL;
+	
+	newPrimtool = (PrimTool*)malloc(sizeof(PrimTool));
+	assert(newPrimtool != NULL);
+	/*遍历记录列表*/
+	newPrimtool->vexVisited = (bool*)malloc(clgp->vexNum * sizeof(bool));
+	assert(newPrimtool->vexVisited != NULL);
+
+	memset(newPrimtool->vexVisited, false, clgp->vexNum * sizeof(bool));
+	newPrimtool->length = 0;
+
+	return newPrimtool;
+}
+
+
+static void destroyPrimtool(PrimTool* primTool)
+{
+	if (primTool)
+	{
+		free(primTool->vexVisited);
+		free(primTool);
+		primTool = NULL;
+	}
 }
 
 
@@ -386,8 +414,7 @@ void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexTy
 	clgp->vertexInedgeNumber	= vertexInedgeNumber;
 	clgp->vertexOutedgeNumber	= vertexOutedgeNumber;
 	clgp->printVexEdgeSet		= printVexEdgeSet;
-	clgp->MinimumSpanTree		=  MinimumSpanTree;
-
+	clgp->MinimumSpanTree_Prim  = MinimumSpanTree_Prim;
 
 }
 
@@ -563,131 +590,69 @@ static void breadthFirstSearch(CLGraph* clgp, int vexInd)
 }
 
 
-void mstvisit(CLGraph* clgp, int outToVexInd, int outWeight, BVisited* mstvisited)
+static void mstPrimvisit(CLGraph* clgp, int* startVexInd, int* endVexInd, int* weight, PrimTool* primTool)
 {
-	mstvisited->length++;
-	mstvisited->breadthVisited[outToVexInd] = true;
-	printf("(%d %d)", outToVexInd, outWeight);
-
+	primTool->length++;
+	primTool->vexVisited[*endVexInd] = true;
+	printf("(startVexInd:%d, endVexInd:%d, weight:%d)\n", *startVexInd, *endVexInd, *weight);
 }
 
-void getNeibhorMinWeight(CLGraph* clgp, int vexInd, BVisited* mstvisited, int* ind, int* weight)
+
+static void getNextEdge(CLGraph* clgp, int* startVexInd, int* endVexInd, int *weight, PrimTool* primTool)
 {
-	EdgeNode* tempEdge;
-	InEdge* tempIn;
-	OutEdge* tempOut;
-	int			MinWeight = VexMaxDistance;
+	/*找到已经遍历过的顶点中未遍历的边中的权重最小的边的对应邻接顶点： endVexInd*/
+	OutEdge* tempOut = NULL;
+	int minWeight = VexMaxDistance;
+	*endVexInd = -1, *weight = VexMinDistance;
 
-	tempEdge = clgp->crossList[vexInd]->vexEdgeSet;		// 出发点
-	tempIn = tempEdge->inEdgeSet;
-	tempOut = tempEdge->outEdgeSet;
-
-	while (tempIn)
+	if (primTool->length == clgp->vexNum) return;
+	for (int visVind = 0; visVind < clgp->vexNum; visVind++)
 	{
-		if (!mstvisited->breadthVisited[tempIn->inVexInd] && tempIn->inWeight < MinWeight)
+		/*找已经遍历过的顶点的所有临边获取最小权重*/
+		if (primTool->vexVisited[visVind])
 		{
-			MinWeight = *weight = tempIn->inWeight;
-			*ind = tempIn->inVexInd;
-		}
-		else tempIn = tempIn->next;
-	}
-
-	while (tempOut)
-	{
-		if (!mstvisited->breadthVisited[tempOut->outToVexInd] && tempOut->outWeight < MinWeight)
-		{
-			MinWeight = *weight = tempOut->outWeight;
-			*ind = tempOut->outToVexInd;
-		}
-		else tempOut = tempOut->next;
-	}
-}
-
-
-static void MST(CLGraph* clgp, int vexInd, BVisited* mstvisited)
-{
-	int ind = -1, weight = 65535;
-	getNeibhorMinWeight(clgp, vexInd, mstvisited, &ind, &weight);
-
-	if (ind != -1 && !mstvisited->breadthVisited[ind])
-	{
-		mstvisit(clgp, ind, weight, mstvisited);
-		if (clgp->vexNum > mstvisited->length) MST(clgp, ind, mstvisited);
-	}
-}
-
-static void MinimumSpanTree(CLGraph* clgp, int vexInd)
-{
-	/*不考虑顶点之间的互通性，只考虑一个顶点可以访问一个顶点，全体不成环即可*/
-	BVisited* mstvisited = createBreadthVisited(clgp->vexNum);
-	mstvisit(clgp, vexInd, 0, mstvisited);
-
-	MST(clgp, vexInd, mstvisited);
-
-}
-
-
-/* Prim 算法实现最小生成树 */
-void prim(CLGraph* graph, int start) {
-	int i, j, k, min;
-	EdgeNode* edge;
-	OutEdge* tempOut;
-	bool visited[VexMaxNum]; /* 保存已找到的最小生成树的顶点 */
-	int dist[VexMaxNum]; /* 保存其它顶点到最小生成树的距离 */
-	int parent[VexMaxNum]; /* 保存当前顶点在最小生成树中的父节点 */
-
-	/* 初始化 visited 数组、dist 数组、parent 数组 */
-	for (i = 0; i < graph->vexNum; i++) {
-		visited[i] = false;
-		dist[i] = VexMaxDistance;
-		parent[i] = -1;
-	}
-
-	/* 从指定的起点开始遍历 */
-	visited[start] = true;
-	dist[start] = 0;
-	edge = graph->crossList[start]->vexEdgeSet;
-	tempOut = edge->outEdgeSet;
-	while (tempOut != NULL) {
-		dist[tempOut->outToVexInd] = tempOut->outWeight;
-		parent[tempOut->outToVexInd] = start;
-		tempOut = tempOut->next;
-	}
-
-	/* 依次将其它顶点加入到最小生成树中 */
-	for (i = 1; i < graph->vexNum; i++) {
-		/* 选择下一个顶点 */
-		min = VexMaxDistance;
-		for (j = 0; j < graph->vexNum; j++) {
-			if (!visited[j] && dist[j] < min) {
-				min = dist[j];
-				k = j;
+			tempOut = clgp->crossList[visVind]->vexEdgeSet->outEdgeSet;
+			while (tempOut)
+			{
+				if (!primTool->vexVisited[tempOut->outToVexInd] && tempOut->outWeight < minWeight)
+				{
+					*weight = minWeight = tempOut->outWeight;
+					*endVexInd = tempOut->outToVexInd;
+					*startVexInd = visVind;
+				}
+				else tempOut = tempOut->next;
 			}
 		}
-
-		/* 将选中的顶点加入到最小生成树中 */
-		visited[k] = true;
-		edge = graph->crossList[start]->vexEdgeSet;
-		tempOut = edge->outEdgeSet;
-		while (tempOut != NULL) {
-			if (!visited[tempOut->outToVexInd] && tempOut->outWeight < dist[tempOut->outToVexInd]) {
-				dist[tempOut->outToVexInd] = tempOut->outWeight;
-				parent[tempOut->outToVexInd] = k;
-			}
-			tempOut = tempOut->next;
-		}
 	}
-
-	/* 打印最小生成树 */
-	for (i = 0; i < graph->vexNum; i++) {
-		if (parent[i] != -1) {
-			printf("(%d,%d) ", parent[i], i);
-		}
-	}
-	printf("\n");
 }
 
+static void MSTPrim(CLGraph* clgp, int* startVexInd, int* endVexInd, int* weight, PrimTool* primTool)
+{
+	if (primTool->length == clgp->vexNum) return;
+	mstPrimvisit(clgp, startVexInd, endVexInd, weight, primTool);
+	getNextEdge(clgp, startVexInd, endVexInd, weight, primTool);
+	MSTPrim(clgp, startVexInd, endVexInd, weight, primTool);
+}
 
+static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd)
+{
+	/*
+		Prim 算法是将图的顶点作为一个集合（vexArr），将访问过的顶点从集合中移动到另一个集合中(visit vexArr)，
+		每次获取下一条边时，是通过找已经遍历过的顶点的所有临边（排除已经访问过的）剩下的中挑选权重最小的边，添加到minTree中，并更新（visit vexArr）
+		
+		总顶点数：clgp->vexNum
+			- 使用 createPrimtool 创建：
+				- 总集： vexvist[clgp->vexNum]	
+				- 遍历过的集： vexvisit[...] = true 的集合
+			- 判断 是否遍历完成：
+				- 使用： clgp->vexNum =?= Primtool->length ;
+	*/
+
+	int endVexInd = 0, weight = 0;
+	PrimTool* primTool = createPrimtool(clgp);
+	MSTPrim(clgp, &vexInd, &endVexInd, &weight, primTool);
+	destroyPrimtool(primTool);
+}
 
 
 static void printVexEdgeSet(CLGraph* clgp)

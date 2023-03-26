@@ -69,11 +69,15 @@
 		EdgeNode* vexEdgeSet;
 	}VertexNode, *CrossList[VexMaxNum];
 
-	/* 边集数组 */
-	typedef struct EdgeSet {
-		int startVexInd, endVexInd;
-		EdgeType weight;
-	} EdgeSet;
+
+	/*Prim 算法temp*/
+	typedef struct PRIMTOOL
+	{
+		bool*   vexVisited;				// 标记每个顶点是否已经加入生成树, 当记录的数量等于图的顶点数时，表示结束，为true 的顶点表示已经访问过了
+		int			length;				// 记录已经访问过的顶点数 已经访问过的顶点数（每次找寻最小权重都时从minTree中的邻接顶点边中找，类似辐射状的找寻）			
+	}PrimTool;
+
+
 
 	/*十字链表*/
 	typedef struct CrossLinkGraph
@@ -86,14 +90,13 @@
 		void (*breadthFirstSearch)	(struct CLGraph* clgp, int vexInd);
 		int  (*vertexInedgeNumber)	(struct CLGraph* clgp, int vexInd);
 		int  (*vertexOutedgeNumber)	(struct CLGraph* clgp, int vexInd);
-		void (*MinimumSpanTree)     (struct CLGraph* clgp, int vexInd);
+		void (*MinimumSpanTree_Prim)(struct CLGraph* clgp, int vexInd);
 
 
 	}CLGraph;
 
 	extern void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexType(*vexRelaArr)[VexRelaArrNum]);
 	extern void destroyCrossGraph(CLGraph* clgp);
-	extern void prim(CLGraph* graph, int start);
 
 
 #endif // !__40_图_有向图_十字链表的实现_H__
