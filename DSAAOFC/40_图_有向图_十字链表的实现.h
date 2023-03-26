@@ -77,6 +77,22 @@
 		int			length;				// 记录已经访问过的顶点数 已经访问过的顶点数（每次找寻最小权重都时从minTree中的邻接顶点边中找，类似辐射状的找寻）			
 	}PrimTool;
 
+	/*Kruskal算法temp*/
+	typedef struct KEdge
+	{
+		int startVexInd, endVexInd;		// 记录图中的所有边的起始与终点
+		EdgeType weight;				// 记录边的权重
+	}KEdge, **KEdgeArr;
+	
+	typedef struct KRUSKALTOOL
+	{
+		KEdgeArr edgearr;				// 用来存储边的集合 
+		int *parent;					// 定义parent数组用来判断边与边是否形成环路  初始化为0	
+		int edgeSize;
+		int length;						// 判断边添加到minTree的数目
+
+	}KruskalTool;
+
 
 
 	/*十字链表*/
@@ -85,12 +101,13 @@
 		CrossList crossList;
 		int vexNum, arcNum;
 
-		void (*printVexEdgeSet)		(struct CLGraph* clgp);
-		void (*depthFirstSearch)	(struct CLGraph* clgp, int vexInd);
-		void (*breadthFirstSearch)	(struct CLGraph* clgp, int vexInd);
-		int  (*vertexInedgeNumber)	(struct CLGraph* clgp, int vexInd);
-		int  (*vertexOutedgeNumber)	(struct CLGraph* clgp, int vexInd);
-		void (*MinimumSpanTree_Prim)(struct CLGraph* clgp, int vexInd);
+		void (*printVexEdgeSet)			(struct CLGraph* clgp);
+		void (*depthFirstSearch)		(struct CLGraph* clgp, int vexInd);
+		void (*breadthFirstSearch)		(struct CLGraph* clgp, int vexInd);
+		int  (*vertexInedgeNumber)		(struct CLGraph* clgp, int vexInd);
+		int  (*vertexOutedgeNumber)		(struct CLGraph* clgp, int vexInd);
+		void (*MinimumSpanTree_Prim)	(struct CLGraph* clgp, int vexInd);
+		void (*MinimumSpanTree_Kruskal) (struct CLGraph* clgp);
 
 
 	}CLGraph;

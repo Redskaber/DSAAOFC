@@ -8,6 +8,7 @@ int start_CrossLinkelist_Graph_case()
 	CLGraph clgp;
 	int vexArr[4] = {11,22,33,44};
 	int vexArr2[6] = {11,22,33,44,55,66};
+	int vexArr3[11] = {13,21,32,24,15,56,32,91,11,9};
 	int relaArr[4][4] = {
 		{65535, 1,    3,	 65535},					// OUT
 		{3,     65535,3,		 2},
@@ -35,6 +36,8 @@ int start_CrossLinkelist_Graph_case()
 	int vexOutNum	= clgp.vertexOutedgeNumber(&clgp, 0);
 	printf("vexInNum:%d, vexOutNum:%d\n", vexInNum, vexOutNum);
 	clgp.MinimumSpanTree_Prim(&clgp, 0);
+	clgp.MinimumSpanTree_Kruskal(&clgp);
+
 	destroyCrossGraph(&clgp);
 	printf("clgp->vexNum:%d, clgp->arcNum:%d\n", clgp.vexNum, clgp.arcNum);
 

@@ -23,6 +23,7 @@ static void breadthFirstSearch(CLGraph* clgp, int vexInd);
 static int  vertexInedgeNumber(CLGraph* clgp, int vexInd);
 static int  vertexOutedgeNumber(CLGraph* clgp, int vexInd);
 static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd);
+static void MinimumSpanTree_Kruskal(CLGraph* clgp);
 static void printVexEdgeSet(CLGraph* clgp);
 
 
@@ -142,6 +143,43 @@ static PrimTool* createPrimtool(CLGraph* clgp)
 
 	return newPrimtool;
 }
+
+static KEdge* createKEdge(int startVexInd, int endVexInd, int weight)
+{
+	KEdge* newKEdge = NULL;
+	
+	newKEdge = (KEdge*)malloc(sizeof(KEdge));
+	assert(newKEdge != NULL);
+
+	newKEdge->startVexInd = startVexInd;
+	newKEdge->endVexInd = endVexInd;
+	newKEdge->weight = weight;
+
+	return newKEdge;
+}
+
+
+static KruskalTool* createKruskalTool(CLGraph* clgp)
+{
+	KruskalTool* newKruskaltool = NULL;
+	
+	newKruskaltool = (KruskalTool*)malloc(sizeof(KruskalTool));
+	assert(newKruskaltool != NULL);
+
+	newKruskaltool->edgearr = (KEdgeArr)malloc(clgp->arcNum * sizeof(KEdge*));
+	assert(newKruskaltool->edgearr != NULL);
+	memset(newKruskaltool->edgearr, 0, clgp->arcNum * sizeof(KEdge*));
+
+	newKruskaltool->parent = (int*)malloc(clgp->vexNum * sizeof(int));
+	assert(newKruskaltool->parent != NULL);
+	for (int i = 0; i < clgp->vexNum; i++) newKruskaltool->parent[i] = i;
+
+	newKruskaltool->length = 0;
+	newKruskaltool->edgeSize = 0;
+
+	return newKruskaltool;
+}
+
 
 
 static void destroyPrimtool(PrimTool* primTool)
@@ -415,6 +453,7 @@ void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexTy
 	clgp->vertexOutedgeNumber	= vertexOutedgeNumber;
 	clgp->printVexEdgeSet		= printVexEdgeSet;
 	clgp->MinimumSpanTree_Prim  = MinimumSpanTree_Prim;
+	clgp->MinimumSpanTree_Kruskal = MinimumSpanTree_Kruskal;
 
 }
 
@@ -425,7 +464,7 @@ static int vertexInedgeNumber(CLGraph* clgp, int vexInd)
 	InEdge* tempIn;
 	int inNumber = 0;
 
-	assert(vexInd < clgp->vexNum&& vexInd >= 0);
+	assert(vexInd < clgp->vexNum && vexInd >= 0);
 	tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
 	if (tempEdge == NULL) return inNumber;
 
@@ -446,7 +485,7 @@ static int vertexOutedgeNumber(CLGraph* clgp, int vexInd)
 	OutEdge* tempOut;
 	int outNumber = 0;
 
-	assert(vexInd < clgp->vexNum&& vexInd >= 0);
+	assert(vexInd < clgp->vexNum && vexInd >= 0);
 	tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
 	if (tempEdge == NULL) return outNumber;
 
@@ -637,7 +676,7 @@ static void MSTPrim(CLGraph* clgp, int* startVexInd, int* endVexInd, int* weight
 static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd)
 {
 	/*
-		Prim 算法是将图的顶点作为一个集合（vexArr），将访问过的顶点从集合中移动到另一个集合中(visit vexArr)，
+		Prim 算法是基于贪心算法，将图的顶点作为一个集合（vexArr），将访问过的顶点从集合中移动到另一个集合中(visit vexArr)，
 		每次获取下一条边时，是通过找已经遍历过的顶点的所有临边（排除已经访问过的）剩下的中挑选权重最小的边，添加到minTree中，并更新（visit vexArr）
 		
 		总顶点数：clgp->vexNum
@@ -653,6 +692,143 @@ static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd)
 	MSTPrim(clgp, &vexInd, &endVexInd, &weight, primTool);
 	destroyPrimtool(primTool);
 }
+
+
+static bool hasKEdge(KruskalTool* kruskalTool, int startVexInd, int endVexInd, int weight)
+{
+	if (!kruskalTool->edgearr[0]) return false;
+	for (int i = 0; i < kruskalTool->edgeSize; i++)
+	{
+		if (
+			kruskalTool->edgearr[i]->startVexInd == startVexInd && 
+			kruskalTool->edgearr[i]->endVexInd == endVexInd && 
+			kruskalTool->edgearr[i]->weight == weight
+			) return true;
+	}
+	return false;
+}
+
+
+static void createEdgeArr(CLGraph* clgp, KruskalTool* kruskalTool)
+{
+	EdgeNode* tempEdge;
+	InEdge*		tempIn;
+	OutEdge*   tempOut;
+	KEdge*   tempkedge;
+
+	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
+	{
+		tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
+		if (tempEdge)
+		{
+			tempIn = tempEdge->inEdgeSet;
+			tempOut = tempEdge->outEdgeSet;
+
+			while (tempIn)
+			{
+				if (!hasKEdge(kruskalTool, tempIn->inVexInd, vexInd, tempIn->inWeight))
+				{
+					tempkedge = createKEdge(tempIn->inVexInd, vexInd, tempIn->inWeight);
+					kruskalTool->edgearr[kruskalTool->edgeSize++] = tempkedge;
+				}
+				tempIn = tempIn->next;
+			}
+			while (tempOut)
+			{
+				if (!hasKEdge(kruskalTool, vexInd, tempOut->outToVexInd, tempOut->outWeight))
+				{
+					tempkedge = createKEdge(vexInd, tempOut->outToVexInd, tempOut->outWeight);
+					kruskalTool->edgearr[kruskalTool->edgeSize++] = tempkedge;
+				}
+				tempOut = tempOut->next;
+			}
+		}
+	}
+}
+
+
+
+static int cmp(const void* ea, const void* eb)
+{
+	return (*(KEdge**)ea)->weight - (*(KEdge**)eb)->weight;
+}
+
+
+static int find(int parent[], int vexInd)
+{
+	if (parent[vexInd] != vexInd)							// 相等表示顶点没有被访问过
+	{
+		parent[vexInd] = find(parent, parent[vexInd]);		// 被访问过测试是否成环
+	}
+	return parent[vexInd];
+}
+
+
+static void merge(int startVexInd, int endVexInd, int parent[]) 
+{
+	parent[find(parent, startVexInd)] = find(parent, endVexInd);		// 更新标记，将尾顶点的下标更新到对应的下标
+}
+
+
+static void printsort(KruskalTool* kruskaltool)
+{
+	for (int i = 0; i < kruskaltool->edgeSize; i++)
+	{
+		printf(
+			"%d (%d %d %d)\n", i, 
+			kruskaltool->edgearr[i]->startVexInd, 
+			kruskaltool->edgearr[i]->endVexInd, 
+			kruskaltool->edgearr[i]->weight
+		);
+	}
+}
+
+
+static void MSTKruskal(CLGraph* clgp, KruskalTool* kruskaltool)
+{
+	int startVexInd;
+	int endVexInd;
+	int weight;
+
+	for (int arcInd = 0; arcInd < kruskaltool->edgeSize; arcInd++)
+	{
+		startVexInd = kruskaltool->edgearr[arcInd]->startVexInd;
+		endVexInd = kruskaltool->edgearr[arcInd]->endVexInd;
+		weight = kruskaltool->edgearr[arcInd]->weight;
+
+		if (find(kruskaltool->parent, startVexInd) != find(kruskaltool->parent, endVexInd))
+		{
+			merge(startVexInd, endVexInd, kruskaltool->parent);
+			printf("%d (%d %d %d)\n", arcInd, startVexInd, endVexInd, weight);
+			kruskaltool->length++;
+
+		}
+		if (kruskaltool->length == kruskaltool->edgeSize - 1) break;
+	}
+}
+
+
+static void MinimumSpanTree_Kruskal(CLGraph* clgp)
+{
+	/*
+		Kruskal算法是一种用于解决最小生成树问题的贪心算法。
+		其基本思想是将图中的所有边按照权值从小到大排序，然后依次加入到生成树中，直到生成树中包含了所有的节点为止。
+		具体来说，Kruskal算法的步骤如下：
+		将图中的所有边按照权值从小到大排序。
+		依次遍历所有的边，如果当前边的两个端点在生成树中不在同一个连通分量中，那么将这条边加入到生成树中。
+		重复步骤2，直到生成树中包含了所有的节点。
+		Kruskal算法的时间复杂度为O(ElogE)，其中E为边的数量。该算法的主要优点是简单、易于实现，并且能够保证得到最小生成树。
+		需要注意的是，Kruskal算法并不适用于存在负权边的图，因为在这种情况下，
+		排序后的边集合可能存在环路，导致算法无法正确地得到最小生成树。
+	*/
+
+	KruskalTool* kruskalTool = createKruskalTool(clgp);
+	createEdgeArr(clgp, kruskalTool);
+	qsort(kruskalTool->edgearr, kruskalTool->edgeSize, sizeof(KEdge*), cmp);
+	// printsort(kruskalTool);
+	MSTKruskal(clgp, kruskalTool);
+}
+
 
 
 static void printVexEdgeSet(CLGraph* clgp)
