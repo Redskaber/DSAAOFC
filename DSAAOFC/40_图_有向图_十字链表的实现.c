@@ -27,6 +27,10 @@ static void MinimumSpanTree_Kruskal(CLGraph* clgp);
 static void printVexEdgeSet(CLGraph* clgp);
 
 
+static void minHeapInsert(MinHeap* minHeap, KEdge* edge);
+static KEdge* getWeightMinEdge(MinHeap* minHeap);
+static void printMinHeapEdgeArr(MinHeap* minHeap);
+
 
 
 
@@ -128,17 +132,17 @@ static Stack* createStack(int stackLen)
 }
 
 
-static PrimTool* createPrimtool(CLGraph* clgp)
+static PrimTool* createPrimtool(int initNum)
 {
 	PrimTool* newPrimtool = NULL;
 	
 	newPrimtool = (PrimTool*)malloc(sizeof(PrimTool));
 	assert(newPrimtool != NULL);
 	/*遍历记录列表*/
-	newPrimtool->vexVisited = (bool*)malloc(clgp->vexNum * sizeof(bool));
+	newPrimtool->vexVisited = (bool*)malloc(initNum * sizeof(bool));
 	assert(newPrimtool->vexVisited != NULL);
 
-	memset(newPrimtool->vexVisited, false, clgp->vexNum * sizeof(bool));
+	memset(newPrimtool->vexVisited, false, initNum * sizeof(bool));
 	newPrimtool->length = 0;
 
 	return newPrimtool;
@@ -159,20 +163,20 @@ static KEdge* createKEdge(int startVexInd, int endVexInd, int weight)
 }
 
 
-static KruskalTool* createKruskalTool(CLGraph* clgp)
+static KruskalTool* createKruskalTool(int vexNum, int arcNum)
 {
 	KruskalTool* newKruskaltool = NULL;
 	
 	newKruskaltool = (KruskalTool*)malloc(sizeof(KruskalTool));
 	assert(newKruskaltool != NULL);
 
-	newKruskaltool->edgearr = (KEdgeArr)malloc(clgp->arcNum * sizeof(KEdge*));
+	newKruskaltool->edgearr = (KEdgeArr)malloc(arcNum * sizeof(KEdge*));
 	assert(newKruskaltool->edgearr != NULL);
-	memset(newKruskaltool->edgearr, 0, clgp->arcNum * sizeof(KEdge*));
+	memset(newKruskaltool->edgearr, 0, arcNum * sizeof(KEdge*));
 
-	newKruskaltool->parent = (int*)malloc(clgp->vexNum * sizeof(int));
+	newKruskaltool->parent = (int*)malloc(vexNum * sizeof(int));
 	assert(newKruskaltool->parent != NULL);
-	for (int i = 0; i < clgp->vexNum; i++) newKruskaltool->parent[i] = i;
+	for (int i = 0; i < vexNum; i++) newKruskaltool->parent[i] = i;
 
 	newKruskaltool->length = 0;
 	newKruskaltool->edgeSize = 0;
@@ -181,6 +185,60 @@ static KruskalTool* createKruskalTool(CLGraph* clgp)
 }
 
 
+
+static MinHeap* createMinHeap(int initNemNum)
+{
+	MinHeap* newminHeap = NULL;
+
+	newminHeap = (MinHeap*)malloc(sizeof(MinHeap));
+	assert(newminHeap != NULL);
+
+	newminHeap->edgeArr = (KEdge**)malloc(initNemNum * sizeof(KEdge*));
+	assert(newminHeap->edgeArr != NULL);
+
+	memset(newminHeap->edgeArr, 0, initNemNum * sizeof(KEdge*));
+	newminHeap->capacity = initNemNum;
+	newminHeap->length = 0;
+
+	newminHeap->getWeightMinEdge = getWeightMinEdge;
+	newminHeap->minHeapInsert = minHeapInsert;
+	newminHeap->printMinHeapEdgeArr = printMinHeapEdgeArr;
+
+	return newminHeap;
+}
+
+
+
+static void destroyKEdge(KEdge* kedge)
+{
+	if (kedge)
+	{
+		free(kedge);
+		kedge = NULL;
+	}
+}
+
+static void destroyMinHeap(MinHeap* minHeap)
+{
+	if (minHeap)
+	{
+		for (int i = 0; i < minHeap->length; i++) destroyKEdge(minHeap->edgeArr[i]);
+		free(minHeap);
+	}
+
+}
+
+static void destroyKruskalTool(KruskalTool* kruskaltool)
+{
+	if (kruskaltool)
+	{
+		for (int i = 0; i < kruskaltool->edgeSize; i++) destroyKEdge(kruskaltool->edgearr[i]);
+		free(kruskaltool->edgearr);
+		free(kruskaltool->parent);
+		free(kruskaltool);
+		kruskaltool = NULL;
+	}
+}
 
 static void destroyPrimtool(PrimTool* primTool)
 {
@@ -283,6 +341,94 @@ void destroyCrossGraph(CLGraph* clgp)
 		clgp->depthFirstSearch = NULL;
 		clgp->printVexEdgeSet = NULL;
 	}
+}
+
+
+
+
+
+
+static void swap(KEdge** edgearr, int parent, int child)
+{
+	KEdge* temp = edgearr[parent];
+	edgearr[parent] = edgearr[child];
+	edgearr[child] = temp;
+}
+
+
+static void minHeapUpSize(MinHeap* minHeap)
+{
+	int newSize;
+	KEdge** temp;
+	newSize = 2 * sizeof(minHeap->edgeArr);
+
+	temp = realloc(minHeap->edgeArr, newSize);
+	assert(temp != NULL);
+	minHeap->edgeArr = temp;
+}
+
+
+static void minHeapInsert(MinHeap* minHeap, KEdge* edge)
+{
+	if (minHeap->capacity == minHeap->length) minHeapUpSize(minHeap);
+
+	minHeap->edgeArr[minHeap->length++] = edge;
+	int arrInd = minHeap->length - 1;
+
+	// 只有当minHeap维护的数组除了0以外的索引，子结点小于父节点时需要父子互换
+	while (arrInd >= 0 && minHeap->edgeArr[arrInd]->weight < minHeap->edgeArr[(arrInd - 1)/2]->weight)			
+	{
+		swap(minHeap->edgeArr, (arrInd - 1) / 2, minHeap->length - 1 );
+		arrInd = (arrInd - 1) / 2;		// 可能新添加的元素比祖辈更小
+	}
+}
+
+
+static void heapOrder(MinHeap* minHeap, int arrInd)
+{
+	/*由于本质上在初次加入堆中，已经将数组中的权重大致分好，再这里将最末尾的添加到首部，
+	好处是，可以通过最少的判读获取数组中最小的值，并对其进行swap操作，第二此获取时同样的处理，
+	会导致，第二小的会顺利的获取并以此类推
+	*/
+	int smallInd = arrInd;
+	int leftChildInd = 2 * smallInd + 1;
+	int rightChildInd = 2 * smallInd + 2;
+
+	if (leftChildInd < minHeap->length && minHeap->edgeArr[leftChildInd]->weight < minHeap->edgeArr[smallInd]->weight) 
+	{
+		smallInd = leftChildInd;		// 打标记
+	}
+	if (rightChildInd < minHeap->length && minHeap->edgeArr[rightChildInd]->weight < minHeap->edgeArr[smallInd]->weight)
+	{
+		smallInd = rightChildInd;
+	}
+	if (smallInd != arrInd)		// 说明发生里变化，头部的不是最小值,移动一个结点，需要遍历
+	{
+		swap(minHeap->edgeArr, arrInd, smallInd);
+		heapOrder(minHeap, smallInd);	// 继续
+	}
+}
+
+
+static KEdge* getWeightMinEdge(MinHeap* minHeap)
+{
+	KEdge* temp;
+	if (!minHeap->length) return NULL;
+	
+	temp = minHeap->edgeArr[0];
+	minHeap->edgeArr[0] = minHeap->edgeArr[--minHeap->length];
+	heapOrder(minHeap, 0);
+	return temp;
+}
+
+
+static void printMinHeapEdgeArr(MinHeap* minHeap)
+{
+	for (int i = 0; i < minHeap->length; i++)
+	{
+		printf("%d (%d,%d,%d)\n", i, minHeap->edgeArr[i]->startVexInd, minHeap->edgeArr[i]->endVexInd, minHeap->edgeArr[i]->weight);
+	}
+
 }
 
 
@@ -629,6 +775,7 @@ static void breadthFirstSearch(CLGraph* clgp, int vexInd)
 }
 
 
+
 static void mstPrimvisit(CLGraph* clgp, int* startVexInd, int* endVexInd, int* weight, PrimTool* primTool)
 {
 	primTool->length++;
@@ -637,41 +784,46 @@ static void mstPrimvisit(CLGraph* clgp, int* startVexInd, int* endVexInd, int* w
 }
 
 
-static void getNextEdge(CLGraph* clgp, int* startVexInd, int* endVexInd, int *weight, PrimTool* primTool)
+static void recordVexEdge(CLGraph* clgp, int* startVexInd, int* endVexInd, PrimTool* primTool, MinHeap* minHeap)
 {
-	/*找到已经遍历过的顶点中未遍历的边中的权重最小的边的对应邻接顶点： endVexInd*/
-	OutEdge* tempOut = NULL;
-	int minWeight = VexMaxDistance;
-	*endVexInd = -1, *weight = VexMinDistance;
+	OutEdge* tempOut;
+	KEdge* newKedge = NULL;
+	
+	tempOut = clgp->crossList[*endVexInd]->vexEdgeSet->outEdgeSet;
 
-	if (primTool->length == clgp->vexNum) return;
-	for (int visVind = 0; visVind < clgp->vexNum; visVind++)
+	while (tempOut)
 	{
-		/*找已经遍历过的顶点的所有临边获取最小权重*/
-		if (primTool->vexVisited[visVind])
+		if (!primTool->vexVisited[tempOut->outToVexInd])
 		{
-			tempOut = clgp->crossList[visVind]->vexEdgeSet->outEdgeSet;
-			while (tempOut)
-			{
-				if (!primTool->vexVisited[tempOut->outToVexInd] && tempOut->outWeight < minWeight)
-				{
-					*weight = minWeight = tempOut->outWeight;
-					*endVexInd = tempOut->outToVexInd;
-					*startVexInd = visVind;
-				}
-				else tempOut = tempOut->next;
-			}
+			newKedge = createKEdge(*endVexInd, tempOut->outToVexInd, tempOut->outWeight);
+			minHeap->minHeapInsert(minHeap, newKedge);
+			newKedge = NULL;
 		}
+		tempOut = tempOut->next;
 	}
 }
 
-static void MSTPrim(CLGraph* clgp, int* startVexInd, int* endVexInd, int* weight, PrimTool* primTool)
+
+static void getNextEdge(CLGraph* clgp, int* startVexInd, int* endVexInd, int *weight, PrimTool* primTool, MinHeap* minHeap)
+{
+	/*找到已经遍历过的顶点中未遍历的边中的权重最小的边的对应邻接顶点： endVexInd*/
+	KEdge*	newKedge = NULL;
+	newKedge = minHeap->getWeightMinEdge(minHeap);
+	*startVexInd = newKedge->startVexInd;
+	*endVexInd = newKedge->endVexInd;
+	*weight = newKedge->weight;	
+}
+
+static void MSTPrim(CLGraph* clgp, int* startVexInd, int* endVexInd, int* weight, PrimTool* primTool, MinHeap* minHeap)
 {
 	if (primTool->length == clgp->vexNum) return;
 	mstPrimvisit(clgp, startVexInd, endVexInd, weight, primTool);
-	getNextEdge(clgp, startVexInd, endVexInd, weight, primTool);
-	MSTPrim(clgp, startVexInd, endVexInd, weight, primTool);
+	recordVexEdge(clgp, startVexInd, endVexInd, primTool, minHeap);
+	getNextEdge(clgp, startVexInd, endVexInd, weight, primTool, minHeap);
+	MSTPrim(clgp, startVexInd, endVexInd, weight, primTool, minHeap);
 }
+
+
 
 static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd)
 {
@@ -688,10 +840,16 @@ static void MinimumSpanTree_Prim(CLGraph* clgp, int vexInd)
 	*/
 
 	int endVexInd = 0, weight = 0;
-	PrimTool* primTool = createPrimtool(clgp);
-	MSTPrim(clgp, &vexInd, &endVexInd, &weight, primTool);
+	PrimTool* primTool = createPrimtool(clgp->vexNum);
+	MinHeap* minHeap = createMinHeap(clgp->arcNum);
+
+	MSTPrim(clgp, &vexInd, &endVexInd, &weight, primTool, minHeap);
 	destroyPrimtool(primTool);
+	destroyMinHeap(minHeap);
 }
+
+
+
 
 
 static bool hasKEdge(KruskalTool* kruskalTool, int startVexInd, int endVexInd, int weight)
@@ -822,10 +980,11 @@ static void MinimumSpanTree_Kruskal(CLGraph* clgp)
 		排序后的边集合可能存在环路，导致算法无法正确地得到最小生成树。
 	*/
 
-	KruskalTool* kruskalTool = createKruskalTool(clgp);
+	KruskalTool* kruskalTool = createKruskalTool(clgp->vexNum, clgp->arcNum);
 	createEdgeArr(clgp, kruskalTool);
 	qsort(kruskalTool->edgearr, kruskalTool->edgeSize, sizeof(KEdge*), cmp);
 	// printsort(kruskalTool);
+	printf("startKruskal:\n");
 	MSTKruskal(clgp, kruskalTool);
 }
 

@@ -93,6 +93,17 @@
 
 	}KruskalTool;
 
+	/*最小堆排序*/
+	typedef struct MinHeap				// 最小堆
+	{
+		KEdge** edgeArr;				// 维护一个edge边集数组
+		int length;
+		int capacity;
+
+		KEdge*	(*getWeightMinEdge)		(struct MinHeap* minHeap);
+		void	(*minHeapInsert)		(struct MinHeap* minHeap, KEdge* edge);
+		void	(*printMinHeapEdgeArr)	(struct MinHeap* minHeap);
+	}MinHeap;
 
 
 	/*十字链表*/
