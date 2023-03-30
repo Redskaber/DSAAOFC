@@ -35,9 +35,19 @@ int start_CrossLinkelist_Graph_case()
 		{	 5,		2, 65535, 65535, 65535},
 	};
 
+	int relaArr4[5][5] = {
+		{65535,		1, 65535,     1, 65535},
+		{65535, 65535,	   1,     1, 65535},
+		{65535, 65535, 65535, 65535,	 1},
+		{65535, 65535,	   1, 65535,     1},
+		{65535, 65535, 65535, 65535, 65535},
+	};
+	int inweight[5] = {0,1,1,2,2};
+
 	// CrossLinkGraphInit(&clgp, 4, vexArr, relaArr);
 	CrossLinkGraphInit(&clgp, 6, vexArr2, relaArr2);
 	// CrossLinkGraphInit(&clgp, 5, vexArr3, relaArr3);
+	// CrossLinkGraphInit(&clgp, 5, vexArr3, relaArr4);
 
 	clgp.printVexEdgeSet(&clgp);
 	clgp.depthFirstSearch(&clgp, 0);
@@ -51,6 +61,9 @@ int start_CrossLinkelist_Graph_case()
 
 	clgp.shortPathDijkstra(&clgp,0, 3);
 	clgp.shortPathFloyd(relaArr2);
+
+	
+	clgp.topological_sort(&clgp);
 
 	destroyCrossGraph(&clgp);
 	printf("clgp->vexNum:%d, clgp->arcNum:%d\n", clgp.vexNum, clgp.arcNum);

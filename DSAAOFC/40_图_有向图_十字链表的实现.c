@@ -34,6 +34,9 @@ static void printMinHeapEdgeArr(MinHeap* minHeap);
 static void shortPathDijkstra(CLGraph* clgp, int startVexInd, int endVexInd);
 static void shortPathFloyd(int(*vexRelaArr)[VexRelaArrNum]);
 
+static void topologicalSort(int vexRelaArr[][VexRelaArrNum]);
+static void topological_sort(int adj[][VexRelaArrNum], int in_degree[VexRelaArrNum]);
+
 
 
 static InEdge* createInEdge(EdgeType weight, int rearInd)
@@ -228,6 +231,7 @@ static DijkstraTool* createDijkstraTool(int vexNum, int startVexInd, int endVexI
 		newDijkstraTool->distic[i] = VexMaxDistance;
 		newDijkstraTool->visited[i] = false;
 	}
+
 	newDijkstraTool->startVexInd = startVexInd;
 	newDijkstraTool->endVexInd = endVexInd;
 	newDijkstraTool->vlength = 0;
@@ -240,9 +244,10 @@ static void destroyDijkstraTool(DijkstraTool* dijkstraTool)
 {
 	if (dijkstraTool)
 	{
-		// free(dijkstraTool->distic);
-		// free(dijkstraTool->visited);
+		free(dijkstraTool->distic);
+		free(dijkstraTool->visited);
 		free(dijkstraTool);
+		dijkstraTool = NULL;
 	}
 }
 
@@ -261,6 +266,7 @@ static void destroyMinHeap(MinHeap* minHeap)
 	{
 		for (int i = 0; i < minHeap->length; i++) destroyKEdge(minHeap->edgeArr[i]);
 		free(minHeap);
+		minHeap = NULL;
 	}
 
 }
@@ -374,9 +380,21 @@ void destroyCrossGraph(CLGraph* clgp)
 	
 		clgp->vexNum = 0;
 		clgp->arcNum = 0;
+
 		clgp->breadthFirstSearch = NULL;
 		clgp->depthFirstSearch = NULL;
+
 		clgp->printVexEdgeSet = NULL;
+		clgp->MinimumSpanTree_Kruskal = NULL;
+		clgp->MinimumSpanTree_Prim = NULL;
+
+		clgp->shortPathDijkstra = NULL;
+		clgp->shortPathFloyd = NULL;
+
+		clgp->topological_sort = NULL;
+		clgp->vertexInedgeNumber = NULL;
+		clgp->vertexOutedgeNumber = NULL;
+		clgp = NULL;
 	}
 }
 
@@ -463,7 +481,11 @@ static void printMinHeapEdgeArr(MinHeap* minHeap)
 {
 	for (int i = 0; i < minHeap->length; i++)
 	{
-		printf("%d (%d,%d,%d)\n", i, minHeap->edgeArr[i]->startVexInd, minHeap->edgeArr[i]->endVexInd, minHeap->edgeArr[i]->weight);
+		printf("%d (%d,%d,%d)\n", i, 
+			minHeap->edgeArr[i]->startVexInd, 
+			minHeap->edgeArr[i]->endVexInd, 
+			minHeap->edgeArr[i]->weight
+		);
 	}
 
 }
@@ -482,6 +504,12 @@ static int stackpop(Stack* stack)
 	popInd = stack->stack[stack->length - 1];
 	stack->stack[stack->length--] = -1;
 	return popInd;
+}
+
+
+static bool stackIsEmtry(Stack* stack)
+{
+	return stack->length == 0;
 }
 
 
@@ -639,6 +667,7 @@ void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexTy
 	clgp->MinimumSpanTree_Kruskal = MinimumSpanTree_Kruskal;
 	clgp->shortPathDijkstra		= shortPathDijkstra;
 	clgp->shortPathFloyd		= shortPathFloyd;
+	clgp->topological_sort		= topological_sort;
 }
 
 
@@ -1185,7 +1214,7 @@ static void shortPathDijkstra(CLGraph* clgp, int startVexInd, int endVexInd)
 	printDistic(clgp, dijkstraTool);
 	printf("MinInd:%d, weight:%d\n", MinInd, dijkstraTool->distic[MinInd]);
 	SPD(clgp, dijkstraTool, &MinInd);
-	destroyDijkstraTool(dijkstraTool);
+	// destroyDijkstraTool(dijkstraTool);
 }
 
 
@@ -1233,14 +1262,12 @@ static void shortPathFloyd(int (*vexRelaArr)[VexRelaArrNum])
 	}
 
 	printf("所有节点对的最短路径长度为：\n");
-
 	for (int row = 0; row < VexRelaArrNum; row++)
 	{
 		for (int col = 0; col < VexRelaArrNum; col++)
 		{
 			if (dist[row][col] == VexMaxDistance) printf("INF\t");
 			else printf("%d\t", dist[row][col]);
-
 		}
 		printf("\n");
 	}
@@ -1250,6 +1277,137 @@ static void shortPathFloyd(int (*vexRelaArr)[VexRelaArrNum])
 
 
 
+static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool)
+{
+	InEdge* tempIn = NULL;
+	EdgeNode* tempEdge = NULL;
+
+	printf("\n\n");
+	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
+	{
+		printf("\nstart:%d:\n", vexInd);
+		tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
+		if (tempEdge)
+		{
+			tempIn = tempEdge->inEdgeSet;
+			while (tempIn)
+			{
+				printf("%d ", tempIn->inVexInd);
+				topologicalTool->indgree[vexInd]++;
+				tempIn = tempIn->next;
+			}
+		}
+	}
+	printf("\n\n");
+}
 
 
+static TopologicalTool* createTopologicalTool(CLGraph* clgp)
+{
+
+	TopologicalTool* newTopologicalTool = NULL;
+
+	newTopologicalTool = (TopologicalTool*)malloc(sizeof(TopologicalTool));
+	assert(newTopologicalTool != NULL);
+
+	newTopologicalTool->stack = (Stack*)createStack(clgp->vexNum);
+	assert(newTopologicalTool->stack != NULL);
+
+	newTopologicalTool->indgree = (int*)malloc(clgp->vexNum * sizeof(int));
+	assert(newTopologicalTool->indgree != NULL);
+
+	memset(newTopologicalTool->indgree, 0, clgp->vexNum * sizeof(int));
+	newTopologicalTool->count = 0;
+
+	/*初始化入度数据*/
+	numInDegree(clgp, newTopologicalTool);
+
+	return newTopologicalTool;
+}
+
+
+
+static void destroyTopologicalTool(TopologicalTool* topologicalTool)
+{
+	if (topologicalTool)
+	{
+		destroyStack(topologicalTool->stack);
+		free(topologicalTool->indgree);
+		free(topologicalTool);
+		
+		topologicalTool = NULL;
+	}
+}
+
+
+static void initIndegreeofZreo(CLGraph* clgp, TopologicalTool* topologicalTool)
+{
+	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
+	{
+		if (topologicalTool->indgree[vexInd] == 0) stackpush(topologicalTool->stack, vexInd);
+	}
+}
+
+
+static void indegreeReduce(CLGraph* clgp, TopologicalTool* topologicalTool)
+{
+	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
+	{
+		if (!--topologicalTool->indgree[vexInd]) stackpush(topologicalTool->stack, vexInd);
+	}
+}
+
+
+static bool TPS(CLGraph* clgp, TopologicalTool* topologicalTool)
+{
+	int vexInd = -1;
+	int vexData = -1;
+
+	//栈不空，则存在入度为0的顶点
+	printf("\n####<<topologicalTool start>>#####\n");
+	while (!stackIsEmtry(topologicalTool->stack)) 
+	{	
+		vexInd = stackpop(topologicalTool->stack);
+		vexData = clgp->crossList[vexInd]->data;
+		topologicalTool->count++;
+		printf("%d ", vexData);
+
+		//将所有i指向的顶点的入度减1，并且将入度减为0的顶点压入栈S
+		indegreeReduce(clgp, topologicalTool);
+	}
+	printf("\n#####<<topologicalTool end>>######\n");
+
+	if (topologicalTool->count < clgp->vexNum) return false;
+	else return true;
+}
+
+
+static bool topological_sort(CLGraph* clgp)
+{
+	/*
+	拓扑排序是一种对有向无环图（DAG）进行排序的算法。
+	该算法将图中所有节点按照一定的次序排列，使得任何一条边的起点在排列中都排在终点的前面。
+
+		具体的实现方法是:使用一个队列(stack)和一个计数器(count)。
+		- 首先，将所有入度为0的节点加入队列中。
+		- 然后，每次从队列中取出一个节点，将其所有相邻节点的入度减1。
+		- 如果某个节点的入度减到0，则将其加入队列中。当队列为空时，所有节点的顺序就确定了。
+
+	拓扑排序可以用于解决诸如任务调度、依赖分析等问题。如果图中存在环，则无法进行拓扑排序。
+	
+	int relaArr[4][4] = {
+		{inf,  1,   3, inf},	// OUT	row
+		{3,  inf,   3,	 2},
+		{4,    1, inf,   4},
+		{inf,  1, inf, inf},
+	};
+		//IN  col
+	*/
+
+	TopologicalTool* topologicalTool = createTopologicalTool(clgp);
+	initIndegreeofZreo(clgp, topologicalTool);
+	bool flag = TPS(clgp, topologicalTool);
+	destroyTopologicalTool(topologicalTool);
+	return flag;
+}
 

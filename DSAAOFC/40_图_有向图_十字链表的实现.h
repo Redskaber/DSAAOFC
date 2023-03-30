@@ -13,7 +13,7 @@
 		 - 十字链表（邻接表，逆向邻接表)
 	*/
 	#define VexMaxNum		10		// 最大顶点数
-	#define VexRelaArrNum	6		// 外部传入顶点关系数组指针
+	#define VexRelaArrNum	5		// 外部传入顶点关系数组指针
 	#define	VexMaxDistance	65535	// 顶点与顶点之间距离为 inf
 	#define	VexMinDistance	0		// 顶点与顶点之间的最小值
 	typedef int EdgeType;
@@ -109,14 +109,22 @@
 	/*Dijkstra算法：最短路径*/
 	typedef struct DijkstraTool
 	{
-		int  *distic;					// 顶点之间的距离 
-		bool *visited;					// 记录顶点之间是否访问
+		int*   distic;					// 顶点之间的距离 
+		bool* visited;					// 记录顶点之间是否访问
 		int  vlength;					// 记录顶点的访问个数
 		int startVexInd;
 		int endVexInd;
 	}DijkstraTool;
 
 	/*Flody算法：最短路径*/
+
+	/*Topological 排序：DAG ->| AOV*/
+	typedef struct TopologicalTool
+	{
+		Stack* stack;					// 顶点存储器
+		int	   count;					// 顶点的计数
+		int* indgree;					// 每个顶点的入度边数
+	}TopologicalTool;
 
 
 
@@ -134,7 +142,8 @@
 		void (*MinimumSpanTree_Prim)	(struct CLGraph* clgp, int vexInd);
 		void (*MinimumSpanTree_Kruskal) (struct CLGraph* clgp);
 		void (*shortPathDijkstra)	    (struct CLGraph* clgp, int startVexInd, int endVexInd);
-		void (*shortPathFloyd)			(int(*vexRelaArr)[VexRelaArrNum]);
+		void (*shortPathFloyd)			(int    (*vexRelaArr)[VexRelaArrNum]);
+		bool (*topological_sort)		(struct CLGtaph* clgp);
 
 
 
