@@ -31,8 +31,6 @@ static void minHeapInsert(MinHeap* minHeap, KEdge* edge);
 static KEdge* getWeightMinEdge(MinHeap* minHeap);
 static void printMinHeapEdgeArr(MinHeap* minHeap);
 
-static void shortPathDijkstra(CLGraph* clgp, int startVexInd, int endVexInd);
-static void shortPathFloyd(int(*vexRelaArr)[VexRelaArrNum]);
 
 
 
@@ -178,7 +176,7 @@ static KruskalTool* createKruskalTool(int vexNum, int arcNum)
 
 	newKruskaltool->parent = (int*)malloc(vexNum * sizeof(int));
 	assert(newKruskaltool->parent != NULL);
-	for (int i = 0; i < vexNum; i++) newKruskaltool->parent[i] = i;
+	if (vexNum)for (int i = 0; i < vexNum; i++) newKruskaltool->parent[i] = i;
 
 	newKruskaltool->length = 0;
 	newKruskaltool->edgeSize = 0;
@@ -210,41 +208,6 @@ static MinHeap* createMinHeap(int initNemNum)
 }
 
 
-static DijkstraTool* createDijkstraTool(int vexNum, int startVexInd, int endVexInd)
-{
-	DijkstraTool* newDijkstraTool = NULL;
-
-	newDijkstraTool = (DijkstraTool*)malloc(sizeof(DijkstraTool));
-	assert(newDijkstraTool != NULL);
-
-	newDijkstraTool->distic = (int*)malloc(vexNum * sizeof(int));
-	assert(newDijkstraTool->distic != NULL);
-
-	newDijkstraTool->visited = (bool*)malloc(vexNum * sizeof(bool));
-	assert(newDijkstraTool->visited != NULL);
-
-	for (int i = 0; i < vexNum; i++)
-	{
-		newDijkstraTool->distic[i] = VexMaxDistance;
-		newDijkstraTool->visited[i] = false;
-	}
-	newDijkstraTool->startVexInd = startVexInd;
-	newDijkstraTool->endVexInd = endVexInd;
-	newDijkstraTool->vlength = 0;
-
-	return newDijkstraTool;
-
-}
-
-static void destroyDijkstraTool(DijkstraTool* dijkstraTool)
-{
-	if (dijkstraTool)
-	{
-		// free(dijkstraTool->distic);
-		// free(dijkstraTool->visited);
-		free(dijkstraTool);
-	}
-}
 
 static void destroyKEdge(KEdge* kedge)
 {
@@ -637,8 +600,7 @@ void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexTy
 	clgp->printVexEdgeSet		= printVexEdgeSet;
 	clgp->MinimumSpanTree_Prim  = MinimumSpanTree_Prim;
 	clgp->MinimumSpanTree_Kruskal = MinimumSpanTree_Kruskal;
-	clgp->shortPathDijkstra		= shortPathDijkstra;
-	clgp->shortPathFloyd		= shortPathFloyd;
+
 }
 
 
@@ -650,7 +612,6 @@ static void printVexEdgeSet(CLGraph* clgp)
 	for (int corsind = 0; corsind < clgp->vexNum; corsind++)
 	{
 		tempVex = clgp->crossList[corsind];
-		if (!tempVex->vexEdgeSet) continue;
 		inEdgeset = tempVex->vexEdgeSet->inEdgeSet;
 		outEdgeset = tempVex->vexEdgeSet->outEdgeSet;
 		printf("\n\n***************************************\n");
@@ -1058,109 +1019,21 @@ static void MinimumSpanTree_Kruskal(CLGraph* clgp)
 }
 
 
-
-static void printDistic(CLGraph* clgp, DijkstraTool* dijkstraTool)
+static DjikstraTool* createDijkstraTool(int vexNum)
 {
-	for (int i = 0; i < clgp->vexNum; i++)
-	{
-		printf("%d (%d)\n", i, dijkstraTool->distic[i]);
-	}
+	DjikstraTool* newDijkstraTool = NULL;
+
+	newDijkstraTool = (DjikstraTool*)malloc(sizeof(DjikstraTool));
+	assert(newDijkstraTool != NULL);
+
+	newDijkstraTool->vexdist = (int*)malloc(vexNum * sizeof(int));
+	assert(newDijkstraTool->vexdist != NULL);
+
 }
 
 
-static void updateVisited(DijkstraTool* dijkstraTool, int visitedInd)
-{
-	dijkstraTool->visited[visitedInd] = true;
-	dijkstraTool->vlength++;
-}
 
-
-static void updateDistic(DijkstraTool* dijkstraTool, int disticInd, int minWeight)
-{
-	dijkstraTool->distic[disticInd] = minWeight;
-}
-
-
-static void initDijkstraTool(CLGraph* clgp, DijkstraTool* dijkstraTool, int* MinInd)
-{
-	EdgeNode* tempEdge;
-	OutEdge* tempOut;
-	int minInd = -1, minWeight = VexMaxDistance;
-
-	updateVisited(dijkstraTool, 0);
-	updateDistic(dijkstraTool, 0, 0);
-	tempEdge = clgp->crossList[dijkstraTool->startVexInd]->vexEdgeSet;
-	tempOut = tempEdge->outEdgeSet;
-
-	while (tempOut)
-	{
-		if (!dijkstraTool->visited[tempOut->outToVexInd])
-		{
-			if (tempOut->outWeight < minWeight)
-			{
-				minWeight = tempOut->outWeight;
-				minInd = tempOut->outToVexInd;
-			}
-			dijkstraTool->distic[tempOut->outToVexInd] = tempOut->outWeight;
-		}
-		tempOut = tempOut->next;
-	}
-
-	updateVisited(dijkstraTool, minInd);
-	updateDistic(dijkstraTool, minInd, minWeight);
-
-	*MinInd = minInd;
-}
-
-
-static int getNextMinVex(CLGraph* clgp, DijkstraTool* dijkstraTool, int minInd, int minWeight)
-{
-	bool tempBool;
-
-	for (int i = 0; i < clgp->vexNum; i++)
-	{
-		tempBool = dijkstraTool->visited[i];
-		if (!tempBool && dijkstraTool->distic[i] < minWeight) minInd = i;
-	}
-
-	return minInd;
-}
-
-
-static void SPD(CLGraph* clgp, DijkstraTool* dijkstraTool, int* MinInd)
-{
-	EdgeNode* tempEdge;
-	OutEdge* tempOut;
-	int disticWeight, newDistWeight;
-	bool hasVisit;
-	int minInd = -1, minWeight = VexMaxDistance;
-
-	tempEdge = clgp->crossList[*MinInd]->vexEdgeSet;
-	tempOut = tempEdge->outEdgeSet;
-
-	while (tempOut)
-	{
-		hasVisit = dijkstraTool->visited[tempOut->outToVexInd];
-		disticWeight = dijkstraTool->distic[tempOut->outToVexInd];
-		newDistWeight = dijkstraTool->distic[*MinInd] + tempOut->outWeight;
-
-		if (!hasVisit && newDistWeight < disticWeight)
-		{
-			dijkstraTool->distic[tempOut->outToVexInd] = newDistWeight;
-		}
-		tempOut = tempOut->next;
-	}
-
-	updateVisited(dijkstraTool, minInd);
-	updateDistic(dijkstraTool, minInd, minWeight);
-	*MinInd = getNextMinVex(clgp, dijkstraTool, minInd, minWeight);
-
-	printDistic(clgp, dijkstraTool);
-	printf("MinInd:%d, weight:%d\n", *MinInd, dijkstraTool->distic[*MinInd]);
-}
-
-
-static void shortPathDijkstra(CLGraph* clgp, int startVexInd, int endVexInd)
+static void shortPathDijkstra(CLGraph* clgp)
 {
 
 	/*
@@ -1178,74 +1051,22 @@ static void shortPathDijkstra(CLGraph* clgp, int startVexInd, int endVexInd)
 	*/
 
 
-	int MinInd = -1;
-	DijkstraTool* dijkstraTool = createDijkstraTool(clgp->vexNum, startVexInd, endVexInd);
-	initDijkstraTool(clgp, dijkstraTool, &MinInd);
 
-	printDistic(clgp, dijkstraTool);
-	printf("MinInd:%d, weight:%d\n", MinInd, dijkstraTool->distic[MinInd]);
-	SPD(clgp, dijkstraTool, &MinInd);
-	destroyDijkstraTool(dijkstraTool);
+
 }
 
 
 
-static void shortPathFloyd(int (*vexRelaArr)[VexRelaArrNum])
-{
-	/*
-		Floyd算法，也称为插点法，是一种用于寻找图中所有最短路径的算法。
-		它可以处理有向图或无向图，并且可以处理其中存在负权边的情况。
-		Floyd算法的时间复杂度为O(n^3)，在处理小规模图时非常高效。
-
-		Floyd算法的实现原理如下：
-		初始化：构建一个n × n的矩阵D，其中D[i][j]表示从节点i到节点j的最短路径长度。
-		对于任意一个节点i，D[i][i] = 0，如果i和j之间有一条边，则D[i][j] = 边的权值，否则D[i][j] = INF。
-		迭代更新：对于每一对节点i和j，如果存在一个节点k，使得从i到k再到j的路径长度比从i到j的路径长度更短，
-		那么就更新D[i][j]的值为D[i][k] + D[k][j]。
-		输出结果：当所有节点对的最短路径长度都计算出来后，矩阵D中的值就是图中所有节点对的最短路径长度。
-	*/
-
-	int min, row, col;
-	int dist[VexRelaArrNum][VexRelaArrNum];
-	int path[VexRelaArrNum][VexRelaArrNum];
-
-	for (row = 0; row < VexRelaArrNum; row++)
-	{
-		for (col = 0; col < VexRelaArrNum; col++)
-		{
-			dist[row][col] = vexRelaArr[row][col];
-		}
-	}
 
 
-	for (int min = 0; min < VexRelaArrNum; min++)		// 中间
-	{
-		for (int row = 0; row < VexRelaArrNum; row++)
-		{
-			for (int col = 0; col < VexRelaArrNum; col++)
-			{
-				if (dist[row][col] > dist[row][min] + dist[min][col])
-				{
-					dist[row][col] = dist[row][min] + dist[min][col];
-				}
-			}
-		}
-	}
 
-	printf("所有节点对的最短路径长度为：\n");
 
-	for (int row = 0; row < VexRelaArrNum; row++)
-	{
-		for (int col = 0; col < VexRelaArrNum; col++)
-		{
-			if (dist[row][col] == VexMaxDistance) printf("INF\t");
-			else printf("%d\t", dist[row][col]);
 
-		}
-		printf("\n");
-	}
 
-}
+
+
+
+
 
 
 

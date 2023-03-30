@@ -106,6 +106,20 @@
 	}MinHeap;
 
 
+	/*Dijkstra算法：最短路径*/
+	typedef struct DijkstraTool
+	{
+		int  *distic;					// 顶点之间的距离 
+		bool *visited;					// 记录顶点之间是否访问
+		int  vlength;					// 记录顶点的访问个数
+		int startVexInd;
+		int endVexInd;
+	}DijkstraTool;
+
+	/*Flody算法：最短路径*/
+
+
+
 	/*十字链表*/
 	typedef struct CrossLinkGraph
 	{
@@ -119,6 +133,9 @@
 		int  (*vertexOutedgeNumber)		(struct CLGraph* clgp, int vexInd);
 		void (*MinimumSpanTree_Prim)	(struct CLGraph* clgp, int vexInd);
 		void (*MinimumSpanTree_Kruskal) (struct CLGraph* clgp);
+		void (*shortPathDijkstra)	    (struct CLGraph* clgp, int startVexInd, int endVexInd);
+		void (*shortPathFloyd)			(int(*vexRelaArr)[VexRelaArrNum]);
+
 
 
 	}CLGraph;
