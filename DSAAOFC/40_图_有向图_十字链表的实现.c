@@ -34,8 +34,9 @@ static void printMinHeapEdgeArr(MinHeap* minHeap);
 static void shortPathDijkstra(CLGraph* clgp, int startVexInd, int endVexInd);
 static void shortPathFloyd(int(*vexRelaArr)[VexRelaArrNum]);
 
-static void topologicalSort(int vexRelaArr[][VexRelaArrNum]);
-static void topological_sort(int adj[][VexRelaArrNum], int in_degree[VexRelaArrNum]);
+
+static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool);
+static bool topological_sort(CLGraph* clgp);
 
 
 
@@ -240,6 +241,33 @@ static DijkstraTool* createDijkstraTool(int vexNum, int startVexInd, int endVexI
 
 }
 
+
+
+static TopologicalTool* createTopologicalTool(CLGraph* clgp)
+{
+
+	TopologicalTool* newTopologicalTool = NULL;
+
+	newTopologicalTool = (TopologicalTool*)malloc(sizeof(TopologicalTool));
+	assert(newTopologicalTool != NULL);
+
+	newTopologicalTool->stack = (Stack*)createStack(clgp->vexNum);
+	assert(newTopologicalTool->stack != NULL);
+
+	newTopologicalTool->indgree = (int*)malloc(clgp->vexNum * sizeof(int));
+	assert(newTopologicalTool->indgree != NULL);
+
+	memset(newTopologicalTool->indgree, 0, clgp->vexNum * sizeof(int));
+	newTopologicalTool->count = 0;
+
+	/*初始化入度数据*/
+	numInDegree(clgp, newTopologicalTool);
+
+	return newTopologicalTool;
+}
+
+
+
 static void destroyDijkstraTool(DijkstraTool* dijkstraTool)
 {
 	if (dijkstraTool)
@@ -370,6 +398,21 @@ static void destroyStack(Stack* stack)
 		stack = NULL;
 	}
 }
+
+
+
+static void destroyTopologicalTool(TopologicalTool* topologicalTool)
+{
+	if (topologicalTool)
+	{
+		destroyStack(topologicalTool->stack);
+		free(topologicalTool->indgree);
+		free(topologicalTool);
+
+		topologicalTool = NULL;
+	}
+}
+
 
 
 void destroyCrossGraph(CLGraph* clgp)
@@ -1238,29 +1281,20 @@ static void shortPathFloyd(int (*vexRelaArr)[VexRelaArrNum])
 	int dist[VexRelaArrNum][VexRelaArrNum];
 	int path[VexRelaArrNum][VexRelaArrNum];
 
-	for (row = 0; row < VexRelaArrNum; row++)
-	{
-		for (col = 0; col < VexRelaArrNum; col++)
-		{
+	/*初始化顶点关系*/
+	for (row = 0; row < VexRelaArrNum; row++) 
+		for (col = 0; col < VexRelaArrNum; col++) 
 			dist[row][col] = vexRelaArr[row][col];
-		}
-	}
 
 
-	for (int min = 0; min < VexRelaArrNum; min++)		// 中间
-	{
-		for (int row = 0; row < VexRelaArrNum; row++)
-		{
+	/*当有：[row][min]+ [min][col] < [row][col]时，更新路径*/
+	for (int min = 0; min < VexRelaArrNum; min++) 
+		for (int row = 0; row < VexRelaArrNum; row++) 
 			for (int col = 0; col < VexRelaArrNum; col++)
-			{
-				if (dist[row][col] > dist[row][min] + dist[min][col])
-				{
+				if (dist[row][col] > dist[row][min] + dist[min][col]) 
 					dist[row][col] = dist[row][min] + dist[min][col];
-				}
-			}
-		}
-	}
 
+	/*打印顶点关系*/
 	printf("所有节点对的最短路径长度为：\n");
 	for (int row = 0; row < VexRelaArrNum; row++)
 	{
@@ -1276,7 +1310,6 @@ static void shortPathFloyd(int (*vexRelaArr)[VexRelaArrNum])
 
 
 
-
 static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool)
 {
 	InEdge* tempIn = NULL;
@@ -1285,7 +1318,7 @@ static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool)
 	printf("\n\n");
 	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
 	{
-		printf("\nstart:%d:\n", vexInd);
+		printf("\nstart:%d\n", vexInd);
 		tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
 		if (tempEdge)
 		{
@@ -1297,47 +1330,11 @@ static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool)
 				tempIn = tempIn->next;
 			}
 		}
+		printf("\ninnum:%d\n", topologicalTool->indgree[vexInd]);
 	}
 	printf("\n\n");
 }
 
-
-static TopologicalTool* createTopologicalTool(CLGraph* clgp)
-{
-
-	TopologicalTool* newTopologicalTool = NULL;
-
-	newTopologicalTool = (TopologicalTool*)malloc(sizeof(TopologicalTool));
-	assert(newTopologicalTool != NULL);
-
-	newTopologicalTool->stack = (Stack*)createStack(clgp->vexNum);
-	assert(newTopologicalTool->stack != NULL);
-
-	newTopologicalTool->indgree = (int*)malloc(clgp->vexNum * sizeof(int));
-	assert(newTopologicalTool->indgree != NULL);
-
-	memset(newTopologicalTool->indgree, 0, clgp->vexNum * sizeof(int));
-	newTopologicalTool->count = 0;
-
-	/*初始化入度数据*/
-	numInDegree(clgp, newTopologicalTool);
-
-	return newTopologicalTool;
-}
-
-
-
-static void destroyTopologicalTool(TopologicalTool* topologicalTool)
-{
-	if (topologicalTool)
-	{
-		destroyStack(topologicalTool->stack);
-		free(topologicalTool->indgree);
-		free(topologicalTool);
-		
-		topologicalTool = NULL;
-	}
-}
 
 
 static void initIndegreeofZreo(CLGraph* clgp, TopologicalTool* topologicalTool)
@@ -1411,3 +1408,15 @@ static bool topological_sort(CLGraph* clgp)
 	return flag;
 }
 
+
+
+static void criticalPath(CLGraph* clgp)
+{
+	/*
+		关键路径：
+
+	*/
+
+
+
+}

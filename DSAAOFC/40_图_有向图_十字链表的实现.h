@@ -145,8 +145,6 @@
 		void (*shortPathFloyd)			(int    (*vexRelaArr)[VexRelaArrNum]);
 		bool (*topological_sort)		(struct CLGtaph* clgp);
 
-
-
 	}CLGraph;
 
 	extern void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexType(*vexRelaArr)[VexRelaArrNum]);
