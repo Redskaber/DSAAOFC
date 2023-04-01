@@ -64,6 +64,7 @@ int start_CrossLinkelist_Graph_case()
 
 	
 	clgp.topological_sort(&clgp);
+	// clgp.criticalPath(&clgp);
 
 	destroyCrossGraph(&clgp);
 	printf("clgp->vexNum:%d, clgp->arcNum:%d\n", clgp.vexNum, clgp.arcNum);

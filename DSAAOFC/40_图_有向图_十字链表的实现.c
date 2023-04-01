@@ -38,6 +38,7 @@ static void shortPathFloyd(int(*vexRelaArr)[VexRelaArrNum]);
 static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool);
 static bool topological_sort(CLGraph* clgp);
 
+static void criticalPath(CLGraph* clgp);
 
 
 static InEdge* createInEdge(EdgeType weight, int rearInd)
@@ -118,7 +119,6 @@ static BVisited* createBreadthVisited(int arrLen)
 	return newBreadthVisited;
 }
 
-
 static Stack* createStack(int stackLen)
 {
 	int stackSize;
@@ -136,7 +136,6 @@ static Stack* createStack(int stackLen)
 
 	return newStack;
 }
-
 
 static PrimTool* createPrimtool(int initNum)
 {
@@ -168,7 +167,6 @@ static KEdge* createKEdge(int startVexInd, int endVexInd, int weight)
 	return newKEdge;
 }
 
-
 static KruskalTool* createKruskalTool(int vexNum, int arcNum)
 {
 	KruskalTool* newKruskaltool = NULL;
@@ -190,8 +188,6 @@ static KruskalTool* createKruskalTool(int vexNum, int arcNum)
 	return newKruskaltool;
 }
 
-
-
 static MinHeap* createMinHeap(int initNemNum)
 {
 	MinHeap* newminHeap = NULL;
@@ -212,7 +208,6 @@ static MinHeap* createMinHeap(int initNemNum)
 
 	return newminHeap;
 }
-
 
 static DijkstraTool* createDijkstraTool(int vexNum, int startVexInd, int endVexInd)
 {
@@ -240,8 +235,6 @@ static DijkstraTool* createDijkstraTool(int vexNum, int startVexInd, int endVexI
 	return newDijkstraTool;
 
 }
-
-
 
 static TopologicalTool* createTopologicalTool(CLGraph* clgp)
 {
@@ -321,7 +314,6 @@ static void destroyPrimtool(PrimTool* primTool)
 	}
 }
 
-
 static void destroyInEdge(InEdge* inedge)
 {
 	if (inedge)
@@ -332,7 +324,6 @@ static void destroyInEdge(InEdge* inedge)
 	}
 }
 
-
 static void destroyOutEdge(OutEdge* outedge)
 {
 	if (outedge)
@@ -342,7 +333,6 @@ static void destroyOutEdge(OutEdge* outedge)
 		outedge = NULL;
 	}
 }
-
 
 static void destroyEdgeNode(EdgeNode* destEdgeNode)
 {
@@ -355,7 +345,6 @@ static void destroyEdgeNode(EdgeNode* destEdgeNode)
 	}
 }
 
-
 static void destroyVertexNode(VertexNode* destVertexNode)
 {
 	if (destVertexNode)
@@ -365,7 +354,6 @@ static void destroyVertexNode(VertexNode* destVertexNode)
 		destVertexNode = NULL;
 	}
 }
-
 
 static void destroyDepthVisited(DVisited* depthVisited)
 {
@@ -377,7 +365,6 @@ static void destroyDepthVisited(DVisited* depthVisited)
 	}
 }
 
-
 static void destroyBreadthVisited(BVisited* breadthVisited)
 {
 	if (breadthVisited)
@@ -388,7 +375,6 @@ static void destroyBreadthVisited(BVisited* breadthVisited)
 	}
 }
 
-
 static void destroyStack(Stack* stack)
 {
 	if (stack)
@@ -398,8 +384,6 @@ static void destroyStack(Stack* stack)
 		stack = NULL;
 	}
 }
-
-
 
 static void destroyTopologicalTool(TopologicalTool* topologicalTool)
 {
@@ -412,8 +396,6 @@ static void destroyTopologicalTool(TopologicalTool* topologicalTool)
 		topologicalTool = NULL;
 	}
 }
-
-
 
 void destroyCrossGraph(CLGraph* clgp)
 {
@@ -711,6 +693,7 @@ void CrossLinkGraphInit(CLGraph* clgp, int vexNum, VertexType vexArr[], VertexTy
 	clgp->shortPathDijkstra		= shortPathDijkstra;
 	clgp->shortPathFloyd		= shortPathFloyd;
 	clgp->topological_sort		= topological_sort;
+	clgp->criticalPath			= criticalPath;
 }
 
 
@@ -1046,7 +1029,6 @@ static void createEdgeArr(CLGraph* clgp, KruskalTool* kruskalTool)
 }
 
 
-
 static int cmp(const void* ea, const void* eb)
 {
 	return (*(KEdge**)ea)->weight - (*(KEdge**)eb)->weight;
@@ -1185,6 +1167,7 @@ static void initDijkstraTool(CLGraph* clgp, DijkstraTool* dijkstraTool, int* Min
 }
 
 
+
 static int getNextMinVex(CLGraph* clgp, DijkstraTool* dijkstraTool, int minInd, int minWeight)
 {
 	bool tempBool;
@@ -1277,9 +1260,8 @@ static void shortPathFloyd(int (*vexRelaArr)[VexRelaArrNum])
 		输出结果：当所有节点对的最短路径长度都计算出来后，矩阵D中的值就是图中所有节点对的最短路径长度。
 	*/
 
-	int min, row, col;
+	int row, col;
 	int dist[VexRelaArrNum][VexRelaArrNum];
-	int path[VexRelaArrNum][VexRelaArrNum];
 
 	/*初始化顶点关系*/
 	for (row = 0; row < VexRelaArrNum; row++) 
@@ -1334,7 +1316,6 @@ static void numInDegree(CLGraph* clgp, TopologicalTool* topologicalTool)
 	}
 	printf("\n\n");
 }
-
 
 
 static void initIndegreeofZreo(CLGraph* clgp, TopologicalTool* topologicalTool)
@@ -1410,13 +1391,180 @@ static bool topological_sort(CLGraph* clgp)
 
 
 
+static void activityDegree(CLGraph* clgp, Activity* activity, ActivityNode* activitynode)
+{
+	OutEdge* tempOut	= NULL;
+	InEdge* tempIn		= NULL;
+	EdgeNode* tempEdge	= NULL;
+
+	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
+	{
+		tempEdge = clgp->crossList[vexInd]->vexEdgeSet;
+		if (tempEdge)
+		{
+			tempIn = tempEdge->inEdgeSet;
+			tempOut = tempEdge->outEdgeSet;
+			while (tempIn)
+			{
+				activity->inwArr[vexInd]++;
+				tempIn = tempIn->next;
+			}
+			while (tempOut)
+			{
+				activity->outwArr[vexInd]++;
+				tempOut = tempOut->next;
+			}
+		}
+	}
+}
+
+
+
+static ActivityNode* createActivityNode(CLGraph* clgp, Activity* activity)
+{
+	ActivityNode* newActivityNode		= NULL;
+
+	newActivityNode = (ActivityNode*)malloc(sizeof(ActivityNode));
+	assert(newActivityNode				!= NULL);
+
+	newActivityNode->data		= 0;
+	newActivityNode->vexInd		= 0;
+	newActivityNode->critical	= 0;
+	newActivityNode->earliest_start		= 0;
+	newActivityNode->earliest_finish	= 0;
+	newActivityNode->latest_start		= 0;
+	newActivityNode->latest_finish		= 0;
+
+	activityDegree(clgp, activity, newActivityNode);
+
+	return newActivityNode;
+}
+
+
+static Activity* createActivity(CLGraph* clgp)
+{	
+	EdgeNode*		tempEdge		= NULL;
+	OutEdge*		tempOut			= NULL;
+	InEdge*			tempIn			= NULL;
+	VertexNode*		tempVertex		= NULL;
+	Activity*		newActivity		= NULL;
+	ActivityNode*	newActivityNode	= NULL;
+	Stack*			FromStack		= NULL;
+	Stack*			ToStack			= NULL;
+	int*			TopoArr			= NULL;
+	int*			DetopoArr		= NULL;
+	int*			InwArr			= NULL;
+	int*			OutwArr			= NULL;
+
+	InwArr		= (int*)malloc(clgp->vexNum * sizeof(int));
+	OutwArr		= (int*)malloc(clgp->vexNum * sizeof(int));
+	TopoArr		= (int*)malloc(clgp->vexNum * sizeof(int));
+	DetopoArr   = (int*)malloc(clgp->vexNum * sizeof(int));
+	FromStack	= createStack(clgp->vexNum);
+	ToStack		= createStack(clgp->vexNum);
+
+	newActivity = (Activity*)malloc(sizeof(Activity));
+	assert(newActivity				!= NULL);
+	newActivity->activity			= (ActivityNode**)malloc(clgp->vexNum * sizeof(ActivityNode*));
+	assert(newActivity->activity	!= NULL);
+	newActivity->fromStack			= FromStack;
+	assert(newActivity->fromStack	!= NULL);
+	newActivity->toStack			= ToStack;
+	assert(newActivity->toStack		!= NULL);
+	newActivity->topoArr			= TopoArr;
+	assert(newActivity->topoArr		!= NULL);
+	newActivity->detopoArr			= DetopoArr;
+	assert(newActivity->detopoArr	!= NULL);
+	newActivity->inwArr				= InwArr;
+	assert(newActivity->inwArr		!= NULL);
+	newActivity->outwArr			= OutwArr;
+	assert(newActivity->outwArr		!= NULL);
+
+	newActivity->length = 0;
+	memset(newActivity->activity,	 0,	clgp->vexNum * sizeof(ActivityNode*));
+	memset(newActivity->topoArr,	-1, clgp->vexNum * sizeof(int));
+	memset(newActivity->detopoArr,	-1, clgp->vexNum * sizeof(int));
+	memset(newActivity->inwArr,		 0, clgp->vexNum * sizeof(int));
+	memset(newActivity->outwArr,	 0, clgp->vexNum * sizeof(int));
+
+
+	for (int vexInd = 0; vexInd < clgp->vexNum; vexInd++)
+	{
+		newActivityNode = createActivityNode(clgp, newActivity);
+		
+		tempVertex	= clgp->crossList[vexInd];
+		tempEdge	= tempVertex->vexEdgeSet;
+		tempOut		= tempEdge->outEdgeSet;
+		tempIn		= tempEdge->inEdgeSet;
+
+		newActivityNode->vexInd = vexInd;
+		newActivityNode->data	= tempVertex->data;
+
+		newActivity->activity[vexInd] = newActivityNode;
+		newActivity->length++;
+	}
+
+	newActivity->fromNum	= 0;
+	newActivity->toNum		= 0;
+	newActivity->duration	= 0;
+
+	return newActivity;
+}
+
+
+static void calculate_earliest(Activity* activity);
+static void calculate_latest();
+static void print_activities();
+
+
 static void criticalPath(CLGraph* clgp)
 {
 	/*
 		关键路径：
 
 	*/
+	Activity* activity = createActivity(clgp);
+
+	// 计算最早开始时间
+	calculate_earliest(activity);
+
+	// 计算最晚开始时间
+	calculate_latest(activity);
 
 
+}
+
+
+static void calculate_earliest(Activity* activity)
+{
+	int vexInd	= -1;
+	int vexData = -1;
+	ActivityNode* activityNode = NULL;
+
+	for (int vexInd = 0; vexInd < activity->length; vexInd++)
+		if (activity->inwArr[vexInd] == 0) stackpush(activity->fromStack->stack, vexInd);
+
+
+	printf("\n####<<topologicalTool start>>#####\n");
+	while (!stackIsEmtry(activity->fromStack->stack))
+	{
+		vexInd = stackpop(activity->fromStack->stack);
+		vexData = activity->activity[vexInd]->data;
+		activity->fromNum++;
+		printf("%d ", vexData);
+
+		//将所有i指向的顶点的入度减1，并且将入度减为0的顶点压入栈S
+		for (int vexInd = 0; vexInd < activity->length; vexInd++)
+			if (!--activity->inwArr[vexInd]) stackpush(activity->fromStack->stack, vexInd);
+	}
+	printf("\n#####<<topologicalTool end>>######\n");
+
+	if (activity->fromNum < activity->length) return false;
+	else return true;
+
+}
+
+static void calculate_latest(Activity* activity)
+{
 
 }

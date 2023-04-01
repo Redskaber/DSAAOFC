@@ -109,11 +109,11 @@
 	/*Dijkstra算法：最短路径*/
 	typedef struct DijkstraTool
 	{
-		int*   distic;					// 顶点之间的距离 
-		bool* visited;					// 记录顶点之间是否访问
-		int  vlength;					// 记录顶点的访问个数
-		int startVexInd;
-		int endVexInd;
+		int*	distic;					// 顶点之间的距离 
+		bool*	visited;					// 记录顶点之间是否访问
+		int		vlength;					// 记录顶点的访问个数
+		int		startVexInd;
+		int		endVexInd;
 	}DijkstraTool;
 
 	/*Flody算法：最短路径*/
@@ -121,11 +121,38 @@
 	/*Topological 排序：DAG ->| AOV*/
 	typedef struct TopologicalTool
 	{
-		Stack* stack;					// 顶点存储器
-		int	   count;					// 顶点的计数
-		int* indgree;					// 每个顶点的入度边数
+		Stack*	stack;					// 顶点存储器
+		int		count;					// 顶点的计数
+		int*	indgree;					// 每个顶点的入度边数
 	}TopologicalTool;
 
+
+	/*关键路径：[EST,LST,EFT,LFT] = 拓扑排序 + */
+	typedef struct ActivityNode
+	{
+		int			data;		                // 信息	
+		int			vexInd;						// vexInd
+		int			critical;					// 是否关键活动
+		int			earliest_start;				// 最早开始时间
+		int			earliest_finish;			// 最早完成时间
+		int			latest_start;				// 最晚开始时间
+		int			latest_finish;				// 最晚完成时间
+	}ActivityNode;
+
+	typedef struct Activity
+	{
+		Stack*			fromStack;				// 前驱节点数组	(instack,  length)				
+		Stack*			toStack;				// 后继节点数组 (outstack, length)
+		int*			topoArr;				// 拓扑顺序
+		int*			detopoArr;				// 逆向拓扑顺序
+		int*			inwArr;					// 入度列表
+		int*			outwArr;				// 出度列表
+		int				fromNum;				// 前驱顶点计数器
+		int				toNum;					// 后继顶点计数器
+		ActivityNode**	activity;				// 活动列表
+		int				length;					// 活动个数
+		int				duration;				// 活动时长
+	}Activity;
 
 
 	/*十字链表*/
@@ -144,6 +171,7 @@
 		void (*shortPathDijkstra)	    (struct CLGraph* clgp, int startVexInd, int endVexInd);
 		void (*shortPathFloyd)			(int    (*vexRelaArr)[VexRelaArrNum]);
 		bool (*topological_sort)		(struct CLGtaph* clgp);
+		void (*criticalPath)			(struct CLGraph* clgp);
 
 	}CLGraph;
 
