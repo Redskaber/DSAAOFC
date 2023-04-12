@@ -127,13 +127,31 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="40_图_有向图_十字链表Case.c" />
-    <ClCompile Include="40_图_有向图_十字链表的实现.c" />
+    <ClCompile Include="50_基础算法.c" />
+    <ClCompile Include="51_基础算法_冒泡排序.c" />
+    <ClCompile Include="51_基础算法_冒泡排序.h" />
+    <ClCompile Include="52_基础算法_选择排序.c" />
+    <ClCompile Include="53_基础算法_插入排序.c" />
+    <ClCompile Include="54_基础算法_希尔算法.c" />
+    <ClCompile Include="55_基础算法_归并算法.c" />
+    <ClCompile Include="56_基础算法_快速排序.c" />
+    <ClCompile Include="57_基础算法_堆排序.c" />
+    <ClCompile Include="58_基础算法_计数排序.c" />
+    <ClCompile Include="59_基础算法_桶排序.c" />
+    <ClCompile Include="60_基础算法_基数排序.c" />
     <ClCompile Include="DSAAOFC.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="40_图_有向图_十字链表Case.h" />
-    <ClInclude Include="40_图_有向图_十字链表的实现.h" />
+    <ClInclude Include="50_基础算法.h" />
+    <ClInclude Include="52_基础算法_选择排序.h" />
+    <ClInclude Include="53_基础算法_插入排序.h" />
+    <ClInclude Include="54_基础算法_希尔算法.h" />
+    <ClInclude Include="55_基础算法_归并算法.h" />
+    <ClInclude Include="56_基础算法_快速排序.h" />
+    <ClInclude Include="57_基础算法_堆排序.h" />
+    <ClInclude Include="58_基础算法_计数排序.h" />
+    <ClInclude Include="59_基础算法_桶排序.h" />
+    <ClInclude Include="60_基础算法_基数排序.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

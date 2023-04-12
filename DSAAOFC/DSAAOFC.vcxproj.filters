@@ -39,19 +39,73 @@
     <ClCompile Include="DSAAOFC.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="40_图_有向图_十字链表的实现.c">
+    <ClCompile Include="51_基础算法_冒泡排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="51_基础算法_冒泡排序.c">
       <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
-    <ClCompile Include="40_图_有向图_十字链表Case.c">
+    <ClCompile Include="50_基础算法.c">
       <Filter>源文件\DataStructure\TestCase</Filter>
+    </ClCompile>
+    <ClCompile Include="52_基础算法_选择排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="53_基础算法_插入排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="54_基础算法_希尔算法.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="55_基础算法_归并算法.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="56_基础算法_快速排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="57_基础算法_堆排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="58_基础算法_计数排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="59_基础算法_桶排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
+    </ClCompile>
+    <ClCompile Include="60_基础算法_基数排序.c">
+      <Filter>源文件\DataStructure\LinearList</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="40_图_有向图_十字链表的实现.h">
+    <ClInclude Include="50_基础算法.h">
+      <Filter>头文件\DataStructure\TestCase</Filter>
+    </ClInclude>
+    <ClInclude Include="52_基础算法_选择排序.h">
       <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
-    <ClInclude Include="40_图_有向图_十字链表Case.h">
-      <Filter>头文件\DataStructure\TestCase</Filter>
+    <ClInclude Include="53_基础算法_插入排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="54_基础算法_希尔算法.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="55_基础算法_归并算法.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="56_基础算法_快速排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="57_基础算法_堆排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="58_基础算法_计数排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="59_基础算法_桶排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
+    </ClInclude>
+    <ClInclude Include="60_基础算法_基数排序.h">
+      <Filter>头文件\DataStructure\LinearList</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

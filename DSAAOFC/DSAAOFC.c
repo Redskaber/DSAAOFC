@@ -19,20 +19,35 @@
 							- 完全二叉树
 							- 非完全二叉树
 							- 线索二叉树
-			- 图
-				- 实现方法
-					- 邻接矩阵(二维数组)    密图
-					- 邻接表(数组+链表)		疏图
-					- 十字链表(邻接表+逆向邻接表)	有向图
-					- 邻接多重表(左右双顶点next双邻接链重表)	无向图中用于解决无向图的线（删除操作）
-					- 边集数组(顶点数组+边数组)
-				- 实现类型
-					- 无向图
-					- 有向图
-						- 有向图不带权重
-						- 有向图带权重
+				- 图
+					- 实现方法
+						- 邻接矩阵(二维数组)    密图
+						- 邻接表(数组+链表)		疏图
+						- 十字链表(邻接表+逆向邻接表)	有向图
+						- 邻接多重表(左右双顶点next双邻接链重表)	无向图中用于解决无向图的线（删除操作）
+						- 边集数组(顶点数组+边数组)
+					- 实现类型
+						- 无向图
+						- 有向图
+							- 有向图不带权重
+							- 有向图带权重
+				- 堆
+					- 最小堆
+					- 最大堆
+				- 哈希
+
 			- c实现c++中class的功能
 		- 算法
+			- 1.冒泡排序
+			- 2.选择排序
+			- 3.插入排序
+			- 4.希尔排序
+			- 5.归并排序
+			- 6.快速排序
+			- 7.堆排序
+			- 8.计数排序
+			- 9.桶排序
+			- 10.基数排序
 */
 
 #include <stdio.h>
@@ -50,9 +65,11 @@
 // #include "11_二叉树的Case.h"
 // #include "20_图_无向图_邻接矩阵Case.h"
 // #include "30_图_无向图_邻接表Case.h"
-#include "40_图_有向图_十字链表Case.h"
+// #include "40_图_有向图_十字链表Case.h"
 // #include "40_图_有向图_邻接多重表Case.h"
 // #include "40_图_有向图_边集数组Case.h"
+
+// #include "50_基础算法.h"
 
 int main()
 {
@@ -69,10 +86,11 @@ int main()
 	// start_binaryTree_case();
 	// start_undirectedGraph_case();
 	// start_adjacencyTable_Graph_case();	
-	start_CrossLinkelist_Graph_case();
+	// start_CrossLinkelist_Graph_case();
 	// start_adjacency_multiple_Graph_case();
 	// start_edgeSet_array_Graph_case();
 
+	// start_sort();
 
 	return 0;
 }
